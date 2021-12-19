@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "sparrow-rtc",
-	"version": "0.0.0-dev.1",
+	"version": "0.0.0-dev.0",
 	"description": "",
 	"license": "ISC",
 	"author": "Chase Moskal <chasemoskal@gmail.com>",
