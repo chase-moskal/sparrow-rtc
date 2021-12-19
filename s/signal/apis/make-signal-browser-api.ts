@@ -1,12 +1,18 @@
 
 import {renrakuApi, renrakuService} from "renraku"
 
-export const makeSignalBrowserApi = () => renrakuApi({
+export const makeSignalBrowserApi = ({
+		handleJoiner,
+	}: {
+		handleJoiner(clientId: string): Promise<{offer: any}>
+	}) => renrakuApi({
+
 	host: renrakuService()
 		.policy(async() => {})
 		.expose(() => ({
-			async handleClientRequestToJoin() {},
+			handleJoiner,
 		})),
+
 	client: renrakuService()
 		.policy(async() => {})
 		.expose(() => ({
