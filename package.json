@@ -18,9 +18,12 @@
 		"watch-typescript": "npm run -s compile-typescript -- -w",
 		"watch": "run-p watch-typescript",
 		"test": "cynic node --label='sparrow-rtc test suite' x/tests.test.js",
-		"start": "http-server x"
+		"start-web-server": "http-server",
+		"start-signal-server": "node x/signal/signal-server.js",
+		"start": "run-p start-web-server start-signal-server"
 	},
 	"devDependencies": {
+		"@types/node": "^17.0.0",
 		"cynic": "0.1.0-dev.16",
 		"es-module-shims": "^1.3.5",
 		"http-server": "^14.0.0",
@@ -38,5 +41,8 @@
 	"bugs": {
 		"url": "https://github.com/chase-moskal/sparrow-rtc/issues"
 	},
-	"homepage": "https://github.com/chase-moskal/sparrow-rtc#readme"
+	"homepage": "https://github.com/chase-moskal/sparrow-rtc#readme",
+	"dependencies": {
+		"renraku": "^0.0.0-dev.43"
+	}
 }

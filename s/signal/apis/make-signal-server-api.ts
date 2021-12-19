@@ -1,8 +1,9 @@
 
 import {renrakuApi, RenrakuRemote, renrakuService} from "renraku"
+import {makeSignalBrowserApi} from "./make-signal-browser-api.js"
 
-export const signallingApi = ({}: {
-		browserApi: RenrakuRemote<ReturnType<typeof browserApi>>
+export const makeSignalServerApi = ({}: {
+		signalBrowserApi: RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>
 	}) => renrakuApi({
 
 	discovery: renrakuService()
@@ -40,19 +41,5 @@ export const signallingApi = ({}: {
 			},
 			async relayAnswerToHost() {},
 			async relayIceCandidatesToHost() {},
-		})),
-})
-
-export const browserApi = () => renrakuApi({
-	host: renrakuService()
-		.policy(async() => {})
-		.expose(() => ({
-			async handleClientRequestToJoin() {},
-		})),
-	client: renrakuService()
-		.policy(async() => {})
-		.expose(() => ({
-			async handleOfferFromHost() {},
-			async handleIceCandidatesFromHost() {},
 		})),
 })
