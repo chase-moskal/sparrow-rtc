@@ -1,0 +1,7 @@
+
+/x
+/s/**/_*
+/node_modules
+
+/*.pem
+/*.tgz
