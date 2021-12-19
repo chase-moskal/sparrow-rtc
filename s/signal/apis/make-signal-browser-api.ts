@@ -1,22 +1,17 @@
 
 import {renrakuApi, renrakuService} from "renraku"
+import {SignalBrowserClient, SignalBrowserHost} from "../../types.js"
 
-export const makeSignalBrowserApi = ({
-		handleJoiner,
-	}: {
-		handleJoiner(clientId: string): Promise<{offer: any}>
+export const makeSignalBrowserApi = ({host, client}: {
+		host: SignalBrowserHost
+		client: SignalBrowserClient
 	}) => renrakuApi({
 
 	host: renrakuService()
 		.policy(async() => {})
-		.expose(() => ({
-			handleJoiner,
-		})),
+		.expose(() => ({...host})),
 
 	client: renrakuService()
 		.policy(async() => {})
-		.expose(() => ({
-			async handleOfferFromHost() {},
-			async handleIceCandidatesFromHost() {},
-		})),
+		.expose(() => ({...client})),
 })

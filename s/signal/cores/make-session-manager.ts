@@ -3,13 +3,17 @@ import {RenrakuRemote} from "renraku"
 
 import {Session} from "../../types.js"
 import {generateRandomId} from "../../toolbox/generate-random-id.js"
-import {makeSignalBrowserApi} from "../apis/make-signal-browser-api.js"
+import type {makeSignalBrowserApi} from "../apis/make-signal-browser-api.js"
 
 export function makeSessionManager() {
 	const sessions = new Set<Session>()
 	const hosts = new Map<
 		Session,
 		RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>["host"]
+	>()
+	const clients = new Map<
+		string,
+		RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>["client"]
 	>()
 
 	function createSession({label, discoverable, signalBrowser}: {
@@ -90,6 +94,23 @@ export function makeSessionManager() {
 		sessionFinder: {
 			findSessionById,
 			getSessionHost,
+			findHostBySessionId(id: string) {
+				const session = findSessionById(id)
+				if (session)
+					return getSessionHost(session)!
+				else
+					throw new Error("session not found")
+			},
+		},
+		makeClientManager(client: RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>["client"]) {
+			return {
+				addClient(clientId: string) {
+					clients.set(clientId, client)
+				},
+				getClient(clientId: string) {
+					return clients.get(clientId)
+				},
+			}
 		},
 	}
 }

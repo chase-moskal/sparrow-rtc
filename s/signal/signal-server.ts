@@ -22,16 +22,17 @@ renrakuWebSocketServer({
 			client: async() => {},
 		})
 		const sessionProvider = sessionManager.makeSessionProvider({signalBrowser})
+		const clientManager = sessionManager.makeClientManager(signalBrowser.client)
 		return {
 			handleConnectionClosed() {
 				console.log("connection closed", clientId)
 				sessionProvider.purge()
 			},
 			api: makeSignalServerApi({
-				signalBrowser,
+				clientManager,
 				sessionProvider,
 				sessionFinder: sessionManager.sessionFinder,
-			})
+			}),
 		}
 	}
 })

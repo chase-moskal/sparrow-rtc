@@ -1,24 +1,25 @@
 
-import {renrakuApi, RenrakuRemote, renrakuService} from "renraku"
+import {renrakuApi, renrakuService} from "renraku"
 
-import {makeSignalBrowserApi} from "./make-signal-browser-api.js"
-import {makeSessionManager} from "../cores/make-session-manager.js"
 import {generateRandomId} from "../../toolbox/generate-random-id.js"
-import {SessionInfo} from "../../types.js"
 import {extractSessionInfo} from "../cores/utils/extract-session-info.js"
 
-export const makeSignalServerApi = ({signalBrowser, sessionProvider, sessionFinder}: {
-		signalBrowser: RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>
+import type {makeSessionManager} from "../cores/make-session-manager.js"
+
+export const makeSignalServerApi = ({sessionProvider, sessionFinder, clientManager}: {
 		sessionFinder: ReturnType<typeof makeSessionManager>["sessionFinder"]
 		sessionProvider: ReturnType<ReturnType<typeof makeSessionManager>["makeSessionProvider"]>
+		clientManager: ReturnType<ReturnType<typeof makeSessionManager>["makeClientManager"]>
 	}) => renrakuApi({
 
 	hosting: renrakuService()
 		.policy(async() => {})
 		.expose(() => ({
 			establishSession: sessionProvider.establishSession,
-			async relayOfferToClient() {},
-			async relayIceCandidatesToClient() {},
+			async submitIceCandidates(clientId: string, candidates: any[]) {
+				const client = clientManager.getClient(clientId)!
+				await client.handleIceCandidates(candidates)
+			},
 			terminateSession: sessionProvider.terminateSession,
 		})),
 
@@ -39,19 +40,35 @@ export const makeSignalServerApi = ({signalBrowser, sessionProvider, sessionFind
 					const host = sessionFinder.getSessionHost(session)!
 					const clientId = generateRandomId()
 					const accepted = await host.handleJoiner(clientId)
-					return accepted
-						? {
+					if (accepted) {
+						clientManager.addClient(clientId)
+						return {
 							clientId,
-							sessionInfo: extractSessionInfo(session),
 							offer: accepted.offer,
+							sessionInfo: extractSessionInfo(session),
 						}
-						: undefined
+					}
+					else {
+						return undefined
+					}
 				}
 				else {
 					throw new Error("session not found")
 				}
 			},
-			async relayAnswerToHost() {},
-			async relayIceCandidatesToHost() {},
+			async submitAnswer(sessionId: string, clientId: string, answer: any) {
+				const session = sessionFinder.findSessionById(sessionId)
+				if (session) {
+					const host = sessionFinder.getSessionHost(session)!
+					await host.handleAnswer(clientId, answer)
+				}
+				else {
+					throw new Error("session not found")
+				}
+			},
+			async submitIceCandidates(sessionId: string, clientId: string, candidates: any[]) {
+				const host = sessionFinder.findHostBySessionId(sessionId)
+				await host.handleIceCandidates(clientId, candidates)
+			},
 		})),
 })
