@@ -308,8 +308,10 @@ async function connectToSignalServer({host, client}: {
 		host: SignalBrowserHost
 		client: SignalBrowserClient
 	}) {
+	const url = new URL(window.location.href)
+	const link = `ws://${url.hostname}:8192/`
 	const {remote, close} = await renrakuWebSocketClient<ReturnType<typeof makeSignalServerApi>>({
-		link: "ws://localhost:8192/",
+		link,
 		clientApi: makeSignalBrowserApi({
 			host,
 			client,
