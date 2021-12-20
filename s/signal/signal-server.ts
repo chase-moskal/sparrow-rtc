@@ -5,6 +5,7 @@ import {deathWithDignity} from "../toolbox/death-with-dignity.js"
 import {makeSessionManager} from "./cores/make-session-manager.js"
 import {makeSignalServerApi} from "./apis/make-signal-server-api.js"
 import {makeSignalBrowserApi} from "./apis/make-signal-browser-api.js"
+import {megabytes} from "renraku"
 
 deathWithDignity()
 
@@ -14,6 +15,7 @@ const sessionManager = makeSessionManager()
 renrakuWebSocketServer({
 	port: 8192,
 	exposeErrors: true,
+	maxPayloadSize: megabytes(10),
 	acceptConnection: ({controls, prepareClientApi}) => {
 		const clientId = count++
 		console.log("connection opened", clientId)
