@@ -1,5 +1,5 @@
 
-import {RenrakuRemote} from "renraku"
+import * as renraku from "renraku"
 
 import {Session} from "../../types.js"
 import {generateRandomId} from "../../toolbox/generate-random-id.js"
@@ -9,17 +9,17 @@ export function makeSessionManager() {
 	const sessions = new Set<Session>()
 	const hosts = new Map<
 		Session,
-		RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>["host"]
+		renraku.Remote<ReturnType<typeof makeSignalBrowserApi>>["host"]
 	>()
 	const clients = new Map<
 		string,
-		RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>["client"]
+		renraku.Remote<ReturnType<typeof makeSignalBrowserApi>>["client"]
 	>()
 
 	function createSession({label, discoverable, signalBrowser}: {
 			label: string
 			discoverable: boolean
-			signalBrowser: RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>
+			signalBrowser: renraku.Remote<ReturnType<typeof makeSignalBrowserApi>>
 		}) {
 		const session: Session = {
 			id: generateRandomId(),
@@ -50,7 +50,7 @@ export function makeSessionManager() {
 	}
 
 	function makeSessionProvider({signalBrowser}: {
-			signalBrowser: RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>
+			signalBrowser: renraku.Remote<ReturnType<typeof makeSignalBrowserApi>>
 		}) {
 		let session: undefined | Session
 		return {
@@ -102,7 +102,7 @@ export function makeSessionManager() {
 					throw new Error("session not found")
 			},
 		},
-		makeClientManager(client: RenrakuRemote<ReturnType<typeof makeSignalBrowserApi>>["client"]) {
+		makeClientManager(client: renraku.Remote<ReturnType<typeof makeSignalBrowserApi>>["client"]) {
 			return {
 				addClient(clientId: string) {
 					clients.set(clientId, client)

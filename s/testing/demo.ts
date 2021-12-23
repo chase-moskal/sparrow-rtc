@@ -1,5 +1,5 @@
 
-import {renrakuWebSocketClient} from "renraku/x/websocket/socket-client.js"
+import {webSocketClient} from "renraku/x/websocket/socket-client.js"
 
 import {noop as html} from "../toolbox/template-noop.js"
 import {makeSignalServerApi} from "../signal/apis/make-signal-server-api.js"
@@ -310,7 +310,7 @@ async function connectToSignalServer({host, client}: {
 	}) {
 	const url = new URL(window.location.href)
 	const link = `ws://${url.hostname}:8192/`
-	const {remote, close} = await renrakuWebSocketClient<ReturnType<typeof makeSignalServerApi>>({
+	const {remote, close} = await webSocketClient<ReturnType<typeof makeSignalServerApi>>({
 		link,
 		clientApi: makeSignalBrowserApi({
 			host,

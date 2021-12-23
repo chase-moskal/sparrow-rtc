@@ -1,5 +1,5 @@
 
-import {renrakuApi, renrakuService} from "renraku"
+import * as renraku from "renraku"
 
 import {generateRandomId} from "../../toolbox/generate-random-id.js"
 import {extractSessionInfo} from "../cores/utils/extract-session-info.js"
@@ -10,9 +10,9 @@ export const makeSignalServerApi = ({sessionProvider, sessionFinder, clientManag
 		sessionFinder: ReturnType<typeof makeSessionManager>["sessionFinder"]
 		sessionProvider: ReturnType<ReturnType<typeof makeSessionManager>["makeSessionProvider"]>
 		clientManager: ReturnType<ReturnType<typeof makeSessionManager>["makeClientManager"]>
-	}) => renrakuApi({
+	}) => renraku.api({
 
-	hosting: renrakuService()
+	hosting: renraku.service()
 		.policy(async() => {})
 		.expose(() => ({
 			establishSession: sessionProvider.establishSession,
@@ -23,7 +23,7 @@ export const makeSignalServerApi = ({sessionProvider, sessionFinder, clientManag
 			terminateSession: sessionProvider.terminateSession,
 		})),
 
-	discovery: renrakuService()
+	discovery: renraku.service()
 		.policy(async() => {})
 		.expose(() => ({
 			async listSessions() {
@@ -31,7 +31,7 @@ export const makeSignalServerApi = ({sessionProvider, sessionFinder, clientManag
 			},
 		})),
 
-	connecting: renrakuService()
+	connecting: renraku.service()
 		.policy(async() => {})
 		.expose(() => ({
 			async joinSession(sessionId: string) {

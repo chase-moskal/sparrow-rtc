@@ -1,17 +1,17 @@
 
-import {renrakuApi, renrakuService} from "renraku"
+import * as renraku from "renraku"
 import {SignalBrowserClient, SignalBrowserHost} from "../../types.js"
 
 export const makeSignalBrowserApi = ({host, client}: {
 		host: SignalBrowserHost
 		client: SignalBrowserClient
-	}) => renrakuApi({
+	}) => renraku.api({
 
-	host: renrakuService()
+	host: renraku.service()
 		.policy(async() => {})
 		.expose(() => ({...host})),
 
-	client: renrakuService()
+	client: renraku.service()
 		.policy(async() => {})
 		.expose(() => ({...client})),
 })
