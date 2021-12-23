@@ -18,3 +18,12 @@ export interface SignalBrowserHost {
 export interface SignalBrowserClient {
 	handleIceCandidates(candidates: any[]): Promise<void>
 }
+
+export interface HostState {
+	session: Session | undefined
+}
+
+export interface ClientState {
+	clientId: string | undefined
+	sessionInfo: SessionInfo | undefined
+}
