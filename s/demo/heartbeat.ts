@@ -7,6 +7,7 @@ import {noop as html} from "../toolbox/template-noop.js"
 import {generateRandomId} from "../toolbox/generate-random-id.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
 import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
+import {pub} from "../toolbox/pub.js"
 
 const heartbeatPeriod = 101
 
@@ -25,7 +26,7 @@ interface World {
 	clients: {
 		[clientId: string]: {
 			clientTime: number | undefined
-		},
+		}
 	}
 }
 
@@ -74,6 +75,8 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 		},
 	}
 
+	const closeEvent = pub()
+
 	const session = await host({
 		rtcConfig: standardRtcConfig,
 		signalServerUrl: `ws://${location.hostname}:8192/`,
@@ -84,6 +87,7 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 				worldActions.updateHostTime()
 				send(JSON.stringify(world))
 			}, heartbeatPeriod)
+			closeEvent.subscribe(close)
 			return {
 				handleClose() {
 					clearInterval(interval)
@@ -97,6 +101,10 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 		},
 		onStateChange: render,
 	})
+
+	window.onbeforeunload = () => {
+		closeEvent.publish()
+	}
 }
 
 async function initializeClientSession({app, sessionId}: {
@@ -127,6 +135,8 @@ async function initializeClientSession({app, sessionId}: {
 		`
 	}
 
+	const closeEvent = pub()
+
 	const connection = await client({
 		sessionId,
 		rtcConfig: standardRtcConfig,
@@ -135,6 +145,7 @@ async function initializeClientSession({app, sessionId}: {
 			const interval = setInterval(() => {
 				const update = JSON.stringify({clientTime: Date.now()})
 				send(update)
+				closeEvent.subscribe(close)
 			}, heartbeatPeriod)
 			return {
 				handleClose() {
@@ -150,6 +161,10 @@ async function initializeClientSession({app, sessionId}: {
 		},
 		onStateChange: render,
 	})
+
+	window.onbeforeunload = () => {
+		closeEvent.publish()
+	}
 }
 
 function renderClients(world: World) {
