@@ -1,9 +1,9 @@
 
 import {pub} from "../toolbox/pub.js"
-import {client} from "../connect/client.js"
 import {ClientState, HostState} from "../types.js"
 import {sessionLink} from "../toolbox/session-link.js"
 import {noop as html} from "../toolbox/template-noop.js"
+import {joinSessionAsClient} from "../connect/join-session-as-client.js"
 import {createSessionAsHost} from "../connect/create-session-as-host.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
 import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
@@ -135,7 +135,7 @@ async function initializeClientSession({app, sessionId}: {
 
 	const closeEvent = pub()
 
-	const connection = await client({
+	const connection = await joinSessionAsClient({
 		sessionId,
 		rtcConfig: standardRtcConfig,
 		signalServerUrl: `ws://${location.hostname}:8192/`,

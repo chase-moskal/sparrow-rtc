@@ -55,9 +55,13 @@ export async function createSessionAsHost({
 						},
 						close() {
 							channel.close()
+							peer.close()
+							peerDetails.delete(clientId)
+							controls.handleClose()
 						},
 					})
 					channel.onclose = () => {
+						channel.close()
 						peer.close()
 						peerDetails.delete(clientId)
 						controls.handleClose()
