@@ -68,7 +68,6 @@ export async function joinSessionAsClient({
 				clientId,
 				close() {
 					kill()
-					controls.handleClose()
 				},
 				send(data) {
 					if (channel.readyState === "open")

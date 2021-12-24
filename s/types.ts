@@ -28,13 +28,17 @@ export interface ClientState {
 	sessionInfo: SessionInfo | undefined
 }
 
+export interface JoinerControls {
+	clientId: string
+	close(): void
+	send(data: string | ArrayBuffer): void
+}
+
+export interface JoinerHandlers {
+	handleClose(): void
+	handleMessage(message: string | ArrayBuffer): void
+}
+
 export interface HandleJoin {
-	({}: {
-		clientId: string
-		send(data: string | ArrayBuffer): void
-		close(): void
-	}): {
-		handleMessage(message: string | ArrayBuffer): void
-		handleClose(): void
-	}
+	({}: JoinerControls): JoinerHandlers
 }

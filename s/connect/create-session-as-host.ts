@@ -60,7 +60,6 @@ export async function createSessionAsHost({
 						},
 						close() {
 							kill()
-							controls.handleClose()
 						},
 					})
 					channel.onclose = () => {
