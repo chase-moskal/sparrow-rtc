@@ -30,6 +30,7 @@ export interface ClientState {
 
 export interface HandleJoin {
 	({}: {
+		clientId: string
 		send(data: string | ArrayBuffer): void
 		close(): void
 	}): {

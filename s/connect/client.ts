@@ -56,12 +56,15 @@ export async function client({
 		}
 	}
 
+	let clientId: string
+
 	peer.ondatachannel = event => {
 		const channel = event.channel
 		console.log("RECEIVED DATA CHANNEL", channel)
 		channel.onopen = () => {
 			console.log("data channel open")
 			const controls = handleJoin({
+				clientId,
 				send: data => channel.send(<any>data),
 				close: () => channel.close(),
 			})
@@ -83,8 +86,9 @@ export async function client({
 
 	const joined = await connection.signalServer.connecting.joinSession(sessionId)
 	if (joined) {
+		clientId = joined.clientId
 		simple.state = {
-			clientId: joined.clientId,
+			clientId,
 			sessionInfo: joined.sessionInfo,
 		}
 		console.log("offer", joined.offer)
@@ -92,7 +96,7 @@ export async function client({
 		const answer = await peer.createAnswer()
 		console.log("create answer", answer)
 		await peer.setLocalDescription(new RTCSessionDescription(answer))
-		const {clientId, sessionInfo} = joined
+		const {sessionInfo} = joined
 		await connection.signalServer.connecting.submitAnswer(sessionInfo.id, clientId, answer)
 		console.log("submitted answer")
 		await iceQueue.ready()

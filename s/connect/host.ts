@@ -1,6 +1,6 @@
 
-import {HandleJoin, HostState} from "../types.js"
 import {queue} from "../toolbox/queue.js"
+import {HandleJoin, HostState} from "../types.js"
 import {simplestate} from "../toolbox/simplestate.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
@@ -54,6 +54,7 @@ export async function host({
 				channel.onopen = () => {
 					console.log("DATACHANNEL OPEN")
 					const controls = handleJoin({
+						clientId,
 						send: data => channel.send(<any>data),
 						close: () => channel.close(),
 					})

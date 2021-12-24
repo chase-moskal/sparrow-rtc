@@ -1,13 +1,13 @@
 
+import {pub} from "../toolbox/pub.js"
 import {host} from "../connect/host.js"
 import {client} from "../connect/client.js"
+import {randomId} from "../toolbox/random-id.js"
 import {ClientState, HostState} from "../types.js"
 import {sessionLink} from "../toolbox/session-link.js"
 import {noop as html} from "../toolbox/template-noop.js"
-import {randomId} from "../toolbox/random-id.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
 import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
-import {pub} from "../toolbox/pub.js"
 
 const heartbeatPeriod = 101
 
@@ -80,8 +80,7 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 	const session = await host({
 		rtcConfig: standardRtcConfig,
 		signalServerUrl: `ws://${location.hostname}:8192/`,
-		handleJoin({send, close}) {
-			const clientId = randomId()
+		handleJoin({clientId, send, close}) {
 			worldActions.addClient(clientId)
 			const interval = setInterval(() => {
 				worldActions.updateHostTime()
@@ -125,6 +124,7 @@ async function initializeClientSession({app, sessionId}: {
 					<p>session id: ${state.sessionInfo.id}</p>
 					<p>session label: ${state.sessionInfo.label}</p>
 					<p>session discoverable: ${state.sessionInfo.discoverable}</p>
+					<p>client id: ${state.clientId ?? "(no client id)"}</p>
 					<hr/>
 					<p>host time: <span class=time>${world.hostTime}</span></p>
 					${renderClients(world)}
