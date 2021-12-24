@@ -1,7 +1,7 @@
 
 import * as renraku from "renraku"
 
-import {generateRandomId} from "../../toolbox/generate-random-id.js"
+import {randomId} from "../../toolbox/random-id.js"
 import {extractSessionInfo} from "../cores/utils/extract-session-info.js"
 
 import type {makeSessionManager} from "../cores/make-session-manager.js"
@@ -38,7 +38,7 @@ export const makeSignalServerApi = ({sessionProvider, sessionFinder, clientManag
 				const session = sessionFinder.findSessionById(sessionId)
 				if (session) {
 					const host = sessionFinder.getSessionHost(session)!
-					const clientId = generateRandomId()
+					const clientId = randomId()
 					const accepted = await host.handleJoiner(clientId)
 					if (accepted) {
 						clientManager.addClient(clientId)

@@ -2,7 +2,7 @@
 import * as renraku from "renraku"
 
 import {Session} from "../../types.js"
-import {generateRandomId} from "../../toolbox/generate-random-id.js"
+import {randomId} from "../../toolbox/random-id.js"
 import type {makeSignalBrowserApi} from "../apis/make-signal-browser-api.js"
 
 export function makeSessionManager() {
@@ -22,8 +22,8 @@ export function makeSessionManager() {
 			signalBrowser: renraku.Remote<ReturnType<typeof makeSignalBrowserApi>>
 		}) {
 		const session: Session = {
-			id: generateRandomId(),
-			key: generateRandomId(),
+			id: randomId(),
+			key: randomId(),
 			label,
 			discoverable,
 		}

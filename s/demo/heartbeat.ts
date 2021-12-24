@@ -4,7 +4,7 @@ import {client} from "../connect/client.js"
 import {ClientState, HostState} from "../types.js"
 import {sessionLink} from "../toolbox/session-link.js"
 import {noop as html} from "../toolbox/template-noop.js"
-import {generateRandomId} from "../toolbox/generate-random-id.js"
+import {randomId} from "../toolbox/random-id.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
 import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
 import {pub} from "../toolbox/pub.js"
@@ -81,7 +81,7 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 		rtcConfig: standardRtcConfig,
 		signalServerUrl: `ws://${location.hostname}:8192/`,
 		handleJoin({send, close}) {
-			const clientId = generateRandomId()
+			const clientId = randomId()
 			worldActions.addClient(clientId)
 			const interval = setInterval(() => {
 				worldActions.updateHostTime()
