@@ -2,8 +2,8 @@
 import {webSocketClient} from "renraku"
 
 import {SignalBrowserClient, SignalBrowserHost} from "../../types.js"
-import {makeSignalBrowserApi} from "../../signal/apis/make-signal-browser-api.js"
 import {makeSignalServerApi} from "../../signal/apis/make-signal-server-api.js"
+import {makeSignalBrowserApi} from "../../signal/apis/make-signal-browser-api.js"
 
 interface CommonOptions {
 	url: string
