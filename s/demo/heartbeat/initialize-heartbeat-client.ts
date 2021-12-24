@@ -2,8 +2,8 @@
 import {pub} from "../../toolbox/pub.js"
 import {ClientState} from "../../types.js"
 import {renderWorld} from "./utils/render-world.js"
-import {HeartbeatOptions, HeartbeatWorld} from "./types.js"
 import {noop as html} from "../../toolbox/template-noop.js"
+import {HeartbeatOptions, HeartbeatWorld} from "./types.js"
 import {joinSessionAsClient} from "../../connect/join-session-as-client.js"
 
 export async function initializeHeartbeatClient({
