@@ -1,6 +1,6 @@
 
 import {HeartbeatWorld} from "../types.js"
-import {noop as html} from "../../../toolbox/template-noop.js"
+import {noop as html} from "../../toolbox/template-noop.js"
 
 export function renderWorld(world: HeartbeatWorld) {
 	return html`

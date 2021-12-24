@@ -1,10 +1,10 @@
 
 import {pub} from "../../toolbox/pub.js"
-import {renderWorld} from "./utils/render-world.js"
+import {renderWorld} from "../utils/render-world.js"
+import {sessionLink} from "../utils/session-link.js"
 import {HostState, JoinerControls} from "../../types.js"
-import {sessionLink} from "../../toolbox/session-link.js"
-import {HeartbeatOptions, HeartbeatWorld} from "./types.js"
 import {noop as html} from "../../toolbox/template-noop.js"
+import {HeartbeatOptions, HeartbeatWorld} from "../types.js"
 import {createSessionAsHost} from "../../connect/create-session-as-host.js"
 
 export async function initializeHeartbeatHost({

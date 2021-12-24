@@ -1,10 +1,10 @@
 
+import {HeartbeatOptions} from "./types.js"
 import {randomId} from "../toolbox/random-id.js"
-import {HeartbeatOptions} from "./heartbeat/types.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
-import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
-import {initializeHeartbeatHost} from "./heartbeat/initialize-heartbeat-host.js"
-import {initializeHeartbeatClient} from "./heartbeat/initialize-heartbeat-client.js"
+import {parseHashForSessionId} from "./utils/parse-hash-for-session-id.js"
+import {initializeHeartbeatHost} from "./initializers/initialize-heartbeat-host.js"
+import {initializeHeartbeatClient} from "./initializers/initialize-heartbeat-client.js"
 
 const options: HeartbeatOptions = {
 	signalServerUrl: `ws://${location.hostname}:8192/`,
