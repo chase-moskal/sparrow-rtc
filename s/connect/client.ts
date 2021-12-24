@@ -70,6 +70,10 @@ export async function client({
 		}
 		channel.onclose = () => {
 			console.log("data channel closed")
+			simple.state = {
+				clientId: undefined,
+				sessionInfo: undefined,
+			}
 			onClose()
 		}
 		channel.onmessage = event => {
@@ -92,6 +96,7 @@ export async function client({
 		await connection.signalServer.connecting.submitAnswer(sessionInfo.id, clientId, answer)
 		console.log("submitted answer")
 		await iceQueue.ready()
+		connection.close()
 	}
 	else throw new Error("failed to join")
 
