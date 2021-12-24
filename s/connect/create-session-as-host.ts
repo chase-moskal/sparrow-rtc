@@ -5,9 +5,10 @@ import {simplestate} from "../toolbox/simplestate.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
 export async function createSessionAsHost({
-		signalServerUrl, rtcConfig,
+		label, signalServerUrl, rtcConfig,
 		handleJoin, onStateChange,
 	}: {
+		label: string
 		signalServerUrl: string
 		rtcConfig: RTCConfiguration
 		handleJoin: HandleJoin

@@ -1,4 +1,5 @@
 
+import {randomId} from "../toolbox/random-id.js"
 import {HeartbeatOptions} from "./heartbeat/types.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
 import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
@@ -17,8 +18,12 @@ void async function main() {
 	const sessionId = parseHashForSessionId(location.hash)
 	const app = <HTMLElement>document.querySelector(".app")
 	if (sessionId)
-		await initializeHeartbeatClient({...options, app, sessionId})
+		await initializeHeartbeatClient({
+			...options, app, sessionId,
+		})
 	else
-		await initializeHeartbeatHost({...options, app})
+		await initializeHeartbeatHost({
+			...options, app, sessionLabel: `test session ${randomId()}`,
+		})
 	console.log("🌠 connected")
 }()

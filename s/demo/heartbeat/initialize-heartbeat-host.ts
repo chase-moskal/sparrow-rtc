@@ -11,10 +11,12 @@ export async function initializeHeartbeatHost({
 		app,
 		timeout,
 		rtcConfig,
+		sessionLabel,
 		signalServerUrl,
 		heartbeatPeriod,
 	}: HeartbeatOptions & {
 		app: HTMLElement
+		sessionLabel: string
 	}) {
 
 	type Client = {
@@ -63,6 +65,7 @@ export async function initializeHeartbeatHost({
 	const hostConnection = await createSessionAsHost({
 		rtcConfig,
 		signalServerUrl,
+		label: sessionLabel,
 		handleJoin(controls) {
 			const client = {controls, clientTime: 0, lastTime: Date.now()}
 			clients.add(client)
