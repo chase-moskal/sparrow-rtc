@@ -38,16 +38,17 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 	function render(state: HostState) {
 		app.innerHTML = state.session?
 			html`
-				<p>session type <span data-cool="2">host</span></p>
-				<p>session id <span data-cool>${state.session.id}</span></p>
-				<p>
-					session join link
-					${(() => {
-						const link = sessionLink(location.href, state.session.id)
-						return html`<a target="_blank" href="${link}">${link}</a>`
-					})()}
-				</p>
-				<br/>
+				<section>
+					<p>session type <span data-cool="2">host</span></p>
+					<p>session id <span data-cool>${state.session.id}</span></p>
+					<p>
+						session join link
+						${(() => {
+							const link = sessionLink(location.href, state.session.id)
+							return html`<a target="_blank" href="${link}">${link}</a>`
+						})()}
+					</p>
+				</section>
 				${renderWorld(world)}
 			`:
 			html`
@@ -118,12 +119,13 @@ async function initializeClientSession({app, sessionId}: {
 	function render(state: ClientState) {
 		app.innerHTML = state.sessionInfo?
 			html`
-				<p>session type <span data-cool="2">client</span></p>
-				<p>session id <span data-cool>${state.sessionInfo.id}</span></p>
-				<p>session label <span data-cool>${state.sessionInfo.label}</span></p>
-				<p>session discoverable <span data-cool>${state.sessionInfo.discoverable}</span></p>
-				<p>client id <span data-cool>${state.clientId ?? "(no client id)"}</span></p>
-				<br/>
+				<section>
+					<p>session type <span data-cool="2">client</span></p>
+					<p>session id <span data-cool>${state.sessionInfo.id}</span></p>
+					<p>session label <span data-cool>${state.sessionInfo.label}</span></p>
+					<p>session discoverable <span data-cool>${state.sessionInfo.discoverable}</span></p>
+					<p>client id <span data-cool>${state.clientId ?? "(no client id)"}</span></p>
+				</section>
 				${renderWorld(world)}
 			`:
 			html`
