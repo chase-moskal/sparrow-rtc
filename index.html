@@ -8,13 +8,20 @@
 	<script defer type=importmap-shim src="/x/importmap.json"></script>
 	<script defer src="/node_modules/es-module-shims/dist/es-module-shims.js"></script>
 	<style>
-		html, body {
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		html {
 			background: black;
 			color: #444;
 		}
-		.time {
-			color: lime;
-		}
+		body { padding: 2em; }
+		body * + * { margin-top: 0.2rem; }
+		ol { padding-left: 1.5em; }
+		[data-cool] { color: white; }
+		[data-cool="1"] { color: lime; }
+		[data-cool="2"] { color: yellow; }
+		a { color: deepskyblue; }
+		a:hover { color: skyblue; }
+		a:active { color: white; }
 	</style>
 </head>
 <body class=heartbeat>

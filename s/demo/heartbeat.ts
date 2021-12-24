@@ -2,7 +2,6 @@
 import {pub} from "../toolbox/pub.js"
 import {host} from "../connect/host.js"
 import {client} from "../connect/client.js"
-import {randomId} from "../toolbox/random-id.js"
 import {ClientState, HostState} from "../types.js"
 import {sessionLink} from "../toolbox/session-link.js"
 import {noop as html} from "../toolbox/template-noop.js"
@@ -37,23 +36,23 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 	}
 
 	function render(state: HostState) {
-		app.innerHTML = html`
-			<p>host session</p>
-			${state.session?
-				html`
-					<p>session id: ${state.session.id}</p>
-					<p>
-						${(() => {
-							const link = sessionLink(location.href, state.session.id)
-							return html`<a target="_blank" href="${link}">${link}</a>`
-						})()}
-					</p>
-					${renderClients(world)}
-				`:
-				html`
-					<p>establishing session...</p>
-				`}
-		`
+		app.innerHTML = state.session?
+			html`
+				<p>session type <span data-cool="2">host</span></p>
+				<p>session id <span data-cool>${state.session.id}</span></p>
+				<p>
+					session join link
+					${(() => {
+						const link = sessionLink(location.href, state.session.id)
+						return html`<a target="_blank" href="${link}">${link}</a>`
+					})()}
+				</p>
+				<br/>
+				${renderWorld(world)}
+			`:
+			html`
+				<p>...establishing session...</p>
+			`
 	}
 
 	const worldActions = {
@@ -117,22 +116,19 @@ async function initializeClientSession({app, sessionId}: {
 	}
 
 	function render(state: ClientState) {
-		app.innerHTML = html`
-			<p>client session</p>
-			${state.sessionInfo
-				? html`
-					<p>session id: ${state.sessionInfo.id}</p>
-					<p>session label: ${state.sessionInfo.label}</p>
-					<p>session discoverable: ${state.sessionInfo.discoverable}</p>
-					<p>client id: ${state.clientId ?? "(no client id)"}</p>
-					<hr/>
-					<p>host time: <span class=time>${world.hostTime}</span></p>
-					${renderClients(world)}
-				`
-				: html`
-					<p>no session</p>
-				`}
-		`
+		app.innerHTML = state.sessionInfo?
+			html`
+				<p>session type <span data-cool="2">client</span></p>
+				<p>session id <span data-cool>${state.sessionInfo.id}</span></p>
+				<p>session label <span data-cool>${state.sessionInfo.label}</span></p>
+				<p>session discoverable <span data-cool>${state.sessionInfo.discoverable}</span></p>
+				<p>client id <span data-cool>${state.clientId ?? "(no client id)"}</span></p>
+				<br/>
+				${renderWorld(world)}
+			`:
+			html`
+				<p>no session</p>
+			`
 	}
 
 	const closeEvent = pub()
@@ -167,11 +163,12 @@ async function initializeClientSession({app, sessionId}: {
 	}
 }
 
-function renderClients(world: World) {
+function renderWorld(world: World) {
 	return html`
+		<p>host <span data-cool="1">${world.hostTime}</span></p>
 		<ol>
 			${Object.entries(world.clients).map(([id, {clientTime}]) => html`
-				<li>${id} <span class=time>${clientTime}</span></li>
+				<li>${id} <span data-cool="1">${clientTime}</span></li>
 			`).join("\n")}
 		</ol>
 	`
