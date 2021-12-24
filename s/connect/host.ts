@@ -1,20 +1,15 @@
 
-import {HostState} from "../types.js"
+import {HandleJoin, HostState} from "../types.js"
 import {queue} from "../toolbox/queue.js"
 import {simplestate} from "../toolbox/simplestate.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
 export async function host({
-		signalServerUrl, rtcConfig, onNewClient, onStateChange,
+		signalServerUrl, rtcConfig, handleJoin, onStateChange,
 	}: {
 		signalServerUrl: string
 		rtcConfig: RTCConfiguration
-		onNewClient({}: {
-			send(data: any): void
-		}): {
-			onClose(): void
-			onMessage(message: any): void
-		}
+		handleJoin: HandleJoin
 		onStateChange(state: HostState): void
 	}) {
 
@@ -58,20 +53,19 @@ export async function host({
 				let onMessage = (message: any) => {}
 				channel.onopen = () => {
 					console.log("DATACHANNEL OPEN")
-					const clientControls = onNewClient({
-						send(data) {
-							channel.send(JSON.stringify(data))
-						},
+					const controls = handleJoin({
+						send: data => channel.send(<any>data),
+						close: () => channel.close(),
 					})
-					onClose = clientControls.onClose
-					onMessage = clientControls.onMessage
+					onClose = controls.handleClose
+					onMessage = controls.handleMessage
 				}
 				channel.onclose = () => {
 					console.log("DATACHANNEL CLOSE")
 					onClose()
 				}
 				channel.onmessage = event => {
-					onMessage(JSON.parse(event.data))
+					onMessage(event.data)
 				}
 				console.log("creating offer")
 				const offer = await peer.createOffer()

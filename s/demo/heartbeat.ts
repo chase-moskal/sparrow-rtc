@@ -8,7 +8,7 @@ import {generateRandomId} from "../toolbox/generate-random-id.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
 import {parseHashForSessionId} from "../toolbox/parse-hash-for-session-id.js"
 
-const heartbeatPeriod = 100
+const heartbeatPeriod = 101
 
 void async function main() {
 	console.log("💖 sparrow demo")
@@ -77,20 +77,21 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 	const session = await host({
 		rtcConfig: standardRtcConfig,
 		signalServerUrl: `ws://${location.hostname}:8192/`,
-		onNewClient({send}) {
+		handleJoin({send, close}) {
 			const clientId = generateRandomId()
 			worldActions.addClient(clientId)
 			const interval = setInterval(() => {
 				worldActions.updateHostTime()
-				send(world)
+				send(JSON.stringify(world))
 			}, heartbeatPeriod)
 			return {
-				onClose() {
+				handleClose() {
 					clearInterval(interval)
 					worldActions.removeClient(clientId)
 				},
-				onMessage(message) {
-					worldActions.updateClientTime(clientId, message.clientTime)
+				handleMessage(message) {
+					const {clientTime} = JSON.parse(<string>message)
+					worldActions.updateClientTime(clientId, clientTime)
 				},
 			}
 		},
@@ -130,16 +131,18 @@ async function initializeClientSession({app, sessionId}: {
 		sessionId,
 		rtcConfig: standardRtcConfig,
 		signalServerUrl: `ws://${location.hostname}:8192/`,
-		onJoined({send}) {
+		handleJoin({send, close}) {
 			const interval = setInterval(() => {
-				send({clientTime: Date.now()})
+				const update = JSON.stringify({clientTime: Date.now()})
+				send(update)
 			}, heartbeatPeriod)
 			return {
-				onClose() {
+				handleClose() {
 					clearInterval(interval)
 					console.log("onClose")
 				},
-				onMessage(newWorld: World) {
+				handleMessage(message) {
+					const newWorld = JSON.parse(<string>message)
 					world = newWorld
 					render(connection.getState())
 				},

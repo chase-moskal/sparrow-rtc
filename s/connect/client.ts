@@ -1,5 +1,5 @@
 
-import {ClientState} from "../types.js"
+import {ClientState, HandleJoin} from "../types.js"
 import {queue} from "../toolbox/queue.js"
 import {simplestate} from "../toolbox/simplestate.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
@@ -8,19 +8,14 @@ export async function client({
 		signalServerUrl,
 		sessionId,
 		rtcConfig,
-		onJoined,
+		handleJoin,
 		onStateChange,
 	}: {
 		signalServerUrl: string
 		sessionId: string
 		rtcConfig: RTCConfiguration
+		handleJoin: HandleJoin
 		onStateChange(state: ClientState): void
-		onJoined({}: {
-			send(data: any): void
-		}): {
-			onClose(): void
-			onMessage(data: any): void
-		}
 	}) {
 
 	const peer = new RTCPeerConnection(rtcConfig)
@@ -66,20 +61,19 @@ export async function client({
 		console.log("RECEIVED DATA CHANNEL", channel)
 		channel.onopen = () => {
 			console.log("data channel open")
-			const controls = onJoined({
-				send(data: any) {
-					channel.send(JSON.stringify(data))
-				},
+			const controls = handleJoin({
+				send: data => channel.send(<any>data),
+				close: () => channel.close(),
 			})
-			onClose = controls.onClose
-			onMessage = controls.onMessage
+			onClose = controls.handleClose
+			onMessage = controls.handleMessage
 		}
 		channel.onclose = () => {
 			console.log("data channel closed")
 			onClose()
 		}
 		channel.onmessage = event => {
-			onMessage(JSON.parse(event.data))
+			onMessage(event.data)
 		}
 	}
 

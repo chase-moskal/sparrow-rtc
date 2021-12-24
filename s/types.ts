@@ -27,3 +27,13 @@ export interface ClientState {
 	clientId: string | undefined
 	sessionInfo: SessionInfo | undefined
 }
+
+export interface HandleJoin {
+	({}: {
+		send(data: string | ArrayBuffer): void
+		close(): void
+	}): {
+		handleMessage(message: string | ArrayBuffer): void
+		handleClose(): void
+	}
+}
