@@ -112,7 +112,7 @@ async function initializeHostSession({app}: {app: HTMLElement}) {
 			clients.delete(client)
 		}
 
-		const state = host.getState()
+		const state = host.state
 		const world = calculateWorld()
 		render(state, world)
 		for (const client of clients)
@@ -181,7 +181,7 @@ async function initializeClientSession({app, sessionId}: {
 					lastCommunication = Date.now()
 					const newWorld = JSON.parse(<string>message)
 					world = newWorld
-					render(connection.getState())
+					render(connection.state)
 				},
 			}
 		},

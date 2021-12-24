@@ -99,7 +99,7 @@ export async function joinSessionAsClient({
 	return {
 		clientId: joined.clientId,
 		sessionInfo: joined.sessionInfo,
-		getState() {
+		get state() {
 			return simple.state
 		},
 	}

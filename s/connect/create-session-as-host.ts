@@ -98,7 +98,7 @@ export async function createSessionAsHost({
 
 	return {
 		session,
-		getState() {
+		get state() {
 			return simple.state
 		},
 	}
