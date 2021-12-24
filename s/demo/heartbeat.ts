@@ -18,6 +18,7 @@ void async function main() {
 		await initializeClientSession({app, sessionId})
 	else
 		await initializeHostSession({app})
+	console.log("🌠 connected")
 }()
 
 interface World {

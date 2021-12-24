@@ -58,16 +58,17 @@ export async function joinSessionAsClient({
 
 	peer.ondatachannel = event => {
 		const channel = event.channel
+		function kill() {
+			channel.close()
+			peer.close()
+			simple.state = {clientId: undefined, sessionInfo: undefined}
+		}
 		channel.onopen = () => {
 			const controls = handleJoin({
 				clientId,
 				close() {
-					channel.close()
-					peer.close()
-					simple.state = {
-						clientId: undefined,
-						sessionInfo: undefined,
-					}
+					kill()
+					controls.handleClose()
 				},
 				send(data) {
 					if (channel.readyState === "open")
@@ -75,12 +76,7 @@ export async function joinSessionAsClient({
 				},
 			})
 			channel.onclose = () => {
-				channel.close()
-				peer.close()
-				simple.state = {
-					clientId: undefined,
-					sessionInfo: undefined,
-				}
+				kill()
 				controls.handleClose()
 			}
 			channel.onmessage = event => {

@@ -46,6 +46,11 @@ export async function createSessionAsHost({
 					maxRetransmits: undefined,
 				})
 				channel.binaryType = "arraybuffer"
+				function kill() {
+					channel.close()
+					peer.close()
+					peerDetails.delete(clientId)
+				}
 				channel.onopen = () => {
 					const controls = handleJoin({
 						clientId,
@@ -54,16 +59,12 @@ export async function createSessionAsHost({
 								channel.send(<any>data)
 						},
 						close() {
-							channel.close()
-							peer.close()
-							peerDetails.delete(clientId)
+							kill()
 							controls.handleClose()
 						},
 					})
 					channel.onclose = () => {
-						channel.close()
-						peer.close()
-						peerDetails.delete(clientId)
+						kill()
 						controls.handleClose()
 					}
 					channel.onmessage = event => {
