@@ -97,8 +97,6 @@ export async function joinSessionAsClient({
 	await iceQueue.ready()
 
 	return {
-		clientId: joined.clientId,
-		sessionInfo: joined.sessionInfo,
 		get state() {
 			return simple.state
 		},

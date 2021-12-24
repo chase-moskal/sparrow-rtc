@@ -97,7 +97,6 @@ export async function createSessionAsHost({
 	simple.state = {...simple.state, session}
 
 	return {
-		session,
 		get state() {
 			return simple.state
 		},

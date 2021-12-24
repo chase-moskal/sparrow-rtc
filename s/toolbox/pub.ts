@@ -13,6 +13,7 @@ export function pub<L extends Listener = () => void | Promise<void>>() {
 					records.delete(id)
 				}
 			}
+			return () => {}
 		},
 
 		async publish(...args: Parameters<L>): Promise<void> {
