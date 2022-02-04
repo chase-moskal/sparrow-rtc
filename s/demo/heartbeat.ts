@@ -2,7 +2,7 @@
 import {HeartbeatOptions} from "./types.js"
 import {randomId} from "../toolbox/random-id.js"
 import {standardRtcConfig} from "../connect/utils/standard-rtc-config.js"
-import {parseHashForSessionId} from "./utils/parse-hash-for-session-id.js"
+import {parseHashForSessionId} from "../toolbox/links/parse-hash-for-session-id.js"
 import {initializeHeartbeatHost} from "./initializers/initialize-heartbeat-host.js"
 import {initializeHeartbeatClient} from "./initializers/initialize-heartbeat-client.js"
 
@@ -15,7 +15,7 @@ const options: HeartbeatOptions = {
 
 void async function main() {
 	console.log("💖 sparrow demo")
-	const sessionId = parseHashForSessionId(location.hash)
+	const sessionId = parseHashForSessionId(location.hash, "session")
 	const app = <HTMLElement>document.querySelector(".app")
 	if (sessionId)
 		await initializeHeartbeatClient({

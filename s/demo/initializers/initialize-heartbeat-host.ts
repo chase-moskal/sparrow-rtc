@@ -1,7 +1,7 @@
 
 import {pub} from "../../toolbox/pub.js"
 import {renderWorld} from "../utils/render-world.js"
-import {sessionLink} from "../utils/session-link.js"
+import {sessionLink} from "../../toolbox/links/session-link.js"
 import {HostState, JoinerControls} from "../../types.js"
 import {noop as html} from "../../toolbox/template-noop.js"
 import {HeartbeatOptions, HeartbeatWorld} from "../types.js"
@@ -48,7 +48,7 @@ export async function initializeHeartbeatHost({
 					<p>
 						session join link
 						${(() => {
-							const link = sessionLink(location.href, state.session.id)
+							const link = sessionLink(location.href, "session", state.session.id)
 							return html`<a target="_blank" href="${link}">${link}</a>`
 						})()}
 					</p>
