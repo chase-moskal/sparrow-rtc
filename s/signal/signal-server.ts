@@ -15,6 +15,7 @@ const sessionManager = makeSessionManager()
 webSocketServer({
 	port: 8192,
 	exposeErrors: true,
+	timeout: 10_000,
 	maxPayloadSize: renraku.megabytes(10),
 	acceptConnection: ({controls, prepareClientApi}) => {
 		const clientId = count++

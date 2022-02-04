@@ -34,6 +34,7 @@ const duds = {
 export async function connectToSignalServer(options: ConnectOptions) {
 	const {remote, close} = await webSocketClient<ReturnType<typeof makeSignalServerApi>>({
 		link: options.url,
+		timeout: 10_000,
 		clientApi: makeSignalBrowserApi(
 			(<HostOptions>options).host?
 				{host: (<HostOptions>options).host, client: duds.client}:
