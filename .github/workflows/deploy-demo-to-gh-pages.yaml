@@ -32,6 +32,9 @@ jobs:
     - name: 🎭 add nojekyll
       run: touch .nojekyll
 
+    - name: 🗑️ delete .gitignore
+      run: rm .gitignore
+
     - name: 🚀 gh-pages deployment
       uses: JamesIves/github-pages-deploy-action@4.1.6
       with:
