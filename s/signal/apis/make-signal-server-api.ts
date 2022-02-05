@@ -15,6 +15,9 @@ export const makeSignalServerApi = ({sessionProvider, sessionFinder, clientManag
 	hosting: renraku.service()
 		.policy(async() => {})
 		.expose(() => ({
+			async keepAlive() {
+				return Date.now()
+			},
 			establishSession: sessionProvider.establishSession,
 			async submitIceCandidates(clientId: string, candidates: any[]) {
 				const client = clientManager.getClient(clientId)!

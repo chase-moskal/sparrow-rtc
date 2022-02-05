@@ -10,7 +10,7 @@ const options: HeartbeatOptions = {
 	signalServerUrl: location.host === "localhost:8080"
 		? `ws://${location.hostname}:8192/`
 		: `wss://sparrow-rtc.benevolent.games/`,
-	timeout: 10_000,
+	timeout: 30_000,
 	heartbeatPeriod: 101,
 	rtcConfig: standardRtcConfig,
 }

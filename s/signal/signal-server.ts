@@ -24,10 +24,13 @@ webSocketServer({
 	acceptConnection: ({controls, prepareClientApi}) => {
 		const clientId = count++
 		console.log("connection opened", clientId)
-		const signalBrowser = prepareClientApi<ReturnType<typeof makeSignalBrowserApi>>({
+		const emptyMetaMapForNoAuth = {
 			host: async() => {},
 			client: async() => {},
-		})
+		}
+		const signalBrowser = prepareClientApi<ReturnType<typeof makeSignalBrowserApi>>(
+			emptyMetaMapForNoAuth
+		)
 		const sessionProvider = sessionManager.makeSessionProvider({signalBrowser})
 		const clientManager = sessionManager.makeClientManager(signalBrowser.client)
 		return {

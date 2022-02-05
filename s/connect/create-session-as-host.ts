@@ -90,6 +90,13 @@ export async function createSessionAsHost({
 		},
 	})
 
+	setInterval(async() => {
+		const start = Date.now()
+		const serverNow = await connection.signalServer.hosting.keepAlive()
+		const ping = Date.now() - start
+		console.log(`ping ${ping}ms, server time ${serverNow}`)
+	}, 10_000)
+
 	const session = await connection.signalServer.hosting.establishSession({
 		discoverable: true,
 		label: "test session",
