@@ -19,8 +19,7 @@
 		"test": "cynic node --label='sparrow-rtc test suite' x/tests.test.js",
 		"start-web-server": "http-server",
 		"start-signal-server": "node x/signal/signal-server.js",
-		"start-dev": "run-p start-web-server start-signal-server",
-		"start": "run-s start-signal-server"
+		"start": "run-p start-web-server start-signal-server"
 	},
 	"dependencies": {
 		"renraku": "0.0.0-dev.55"

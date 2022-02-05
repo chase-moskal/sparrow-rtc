@@ -9,11 +9,15 @@ import {makeSignalBrowserApi} from "./apis/make-signal-browser-api.js"
 
 deathWithDignity()
 
+const port = process.argv[2]
+	? parseInt(process.argv[2])
+	: 8192
+
 let count = 0
 const sessionManager = makeSessionManager()
 
 webSocketServer({
-	port: 8192,
+	port,
 	exposeErrors: true,
 	timeout: 10_000,
 	maxPayloadSize: renraku.megabytes(10),
