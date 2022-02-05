@@ -1,12 +1,12 @@
 
-name: publish
+name: publish package to npm
 on:
   push:
     tags:
-      - 'v*'
+    - 'v*'
 
 jobs:
-  publish:
+  publish-package-to-npm:
     runs-on: ubuntu-latest
     if: github.repository_owner == 'chase-moskal'
     steps:

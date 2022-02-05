@@ -3,10 +3,10 @@ name: build
 on:
   push:
     branches:
-      - master
+    - master
   pull_request:
     branches:
-      - master
+    - master
 
 jobs:
   build:
@@ -16,6 +16,11 @@ jobs:
 
     - name: 🔔 checkout
       uses: actions/checkout@v2
+
+    - name: 🔧 set up node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '17'
 
     - name: 📦 install dependencies
       run: npm ci

@@ -7,10 +7,12 @@ import {initializeHeartbeatHost} from "./initializers/initialize-heartbeat-host.
 import {initializeHeartbeatClient} from "./initializers/initialize-heartbeat-client.js"
 
 const options: HeartbeatOptions = {
-	signalServerUrl: `ws://${location.hostname}:8192/`,
-	rtcConfig: standardRtcConfig,
+	signalServerUrl: location.host === "localhost:8080"
+		? `ws://${location.hostname}:8192/`
+		: `wss://sparrow-rtc.benevolent.games/`,
 	timeout: 10_000,
 	heartbeatPeriod: 101,
+	rtcConfig: standardRtcConfig,
 }
 
 void async function main() {
