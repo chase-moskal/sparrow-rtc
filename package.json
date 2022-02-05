@@ -19,7 +19,8 @@
 		"test": "cynic node --label='sparrow-rtc test suite' x/tests.test.js",
 		"start-web-server": "http-server",
 		"start-signal-server": "node x/signal/signal-server.js",
-		"start": "run-p start-web-server start-signal-server"
+		"start-dev": "run-p start-web-server start-signal-server",
+		"start": "run-s start-signal-server"
 	},
 	"devDependencies": {
 		"@types/node": "^17.0.14",
@@ -32,6 +33,9 @@
 		"rimraf": "^3.0.2",
 		"serve": "^13.0.2",
 		"typescript": "^4.5.5"
+	},
+	"engines": {
+		"node": ">=17"
 	},
 	"repository": {
 		"type": "git",
