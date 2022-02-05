@@ -14,13 +14,14 @@ jobs:
     if: github.repository_owner == 'chase-moskal'
     steps:
 
-    - name: 🛎️ checkout
+    - name: 🔔 checkout
       uses: actions/checkout@v2
 
-    - name: 🔧 set up node
-      uses: actions/setup-node@v2
-      with:
-        node-version: '17'
+    - name: 📦 install dependencies
+      run: npm ci
+
+    - name: 🔨🧪 build and test
+      run: npm run build
 
     - name: 📦 npm install and build
       shell: bash
