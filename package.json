@@ -22,8 +22,11 @@
 		"start-dev": "run-p start-web-server start-signal-server",
 		"start": "run-s start-signal-server"
 	},
+	"dependencies": {
+		"renraku": "0.0.0-dev.54"
+	},
 	"devDependencies": {
-		"@types/node": "^17.0.14",
+		"@types/node": "^17.0.15",
 		"cynic": "0.1.0-dev.16",
 		"es-module-shims": "^1.4.4",
 		"http-server": "^14.1.0",
@@ -44,8 +47,5 @@
 	"bugs": {
 		"url": "https://github.com/chase-moskal/sparrow-rtc/issues"
 	},
-	"homepage": "https://github.com/chase-moskal/sparrow-rtc#readme",
-	"dependencies": {
-		"renraku": "^0.0.0-dev.53"
-	}
+	"homepage": "https://github.com/chase-moskal/sparrow-rtc#readme"
 }
