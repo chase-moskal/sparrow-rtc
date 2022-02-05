@@ -30,7 +30,7 @@ jobs:
       run: npm run build
 
     - name: 🎭 add nojekyll
-      run: touch nojekyll
+      run: touch .nojekyll
 
     - name: 🚀 gh-pages deployment
       uses: JamesIves/github-pages-deploy-action@4.1.6
