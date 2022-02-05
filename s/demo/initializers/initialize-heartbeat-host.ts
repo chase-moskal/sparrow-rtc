@@ -1,10 +1,10 @@
 
 import {pub} from "../../toolbox/pub.js"
 import {renderWorld} from "../utils/render-world.js"
-import {sessionLink} from "../../toolbox/links/session-link.js"
 import {HostState, JoinerControls} from "../../types.js"
 import {noop as html} from "../../toolbox/template-noop.js"
 import {HeartbeatOptions, HeartbeatWorld} from "../types.js"
+import {sessionLink} from "../../toolbox/links/session-link.js"
 import {createSessionAsHost} from "../../connect/create-session-as-host.js"
 
 export async function initializeHeartbeatHost({
@@ -69,7 +69,7 @@ export async function initializeHeartbeatHost({
 		handleJoin(controls) {
 			const client = {controls, clientTime: 0, lastTime: Date.now()}
 			clients.add(client)
-			const unsubscribeCloseListener = closeEvent.subscribe(close)
+			const unsubscribeCloseListener = closeEvent.subscribe(controls.close)
 			return {
 				handleClose() {
 					clients.delete(client)
