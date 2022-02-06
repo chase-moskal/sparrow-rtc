@@ -6,8 +6,8 @@
 📦 **`npm install sparrow-rtc`**
 
 📡 easily establish webrtc connections and transmit data  
-🕹️ designed to provide connectivity for multiplayer games  
-🛠️ we run the websocket signalling server free at `wss://sparrow-rtc.benevolent.games/`  
+🕹️ provides multiplayer game connectivity for https://benevolent.games/  
+🛠️ we run the signalling server free at `wss://sparrow-rtc.benevolent.games/`  
 🧪 early alpha software, expect changes  
 💖 free and open source just for you  
 
