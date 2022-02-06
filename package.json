@@ -22,7 +22,7 @@
 		"start": "run-p start-web-server start-signal-server"
 	},
 	"dependencies": {
-		"renraku": "0.0.0-dev.55"
+		"renraku": "0.0.0-dev.56"
 	},
 	"devDependencies": {
 		"@types/node": "^17.0.15",
