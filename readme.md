@@ -7,11 +7,9 @@
 
 📡 easily establish webrtc connections and transmit data  
 🕹️ designed to provide connectivity for multiplayer games  
-🛠️ we run a free instance of the signalling server that you can use  
+🛠️ we run the websocket signalling server free at `wss://sparrow-rtc.benevolent.games/`  
 🧪 early alpha software, expect changes  
 💖 free and open source just for you  
-
-free websocket signalling server is running at `wss://sparrow-rtc.benevolent.games/`
 
 <br/>
 
@@ -86,3 +84,19 @@ const clientConnection = await joinSessionAsClient({
 
 console.log(`now connected as client to session:`, clientConnection.state.session)
 ```
+
+<br/>
+
+### run your own instance of the signalling server
+
+we are running a free instance of the signalling server at this websocket endpoint:
+
+`wss://sparrow-rtc.benevolent.games/`
+
+but if you'd like to run your own instance of the signalling server,
+
+you can clone this repo, and then
+
+- `npm install` to install dependencies
+- `npm run build` to build the project
+- `npm run start-signal-server 8080` to run the signalling server on port 8080
