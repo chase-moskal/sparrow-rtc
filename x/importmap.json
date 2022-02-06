@@ -1,0 +1,9 @@
+{
+	"imports": {
+		"renraku/": "/node_modules/renraku/",
+		"renraku": "/node_modules/renraku/x/renraku.js",
+		"ws/": "/node_modules/ws/",
+		"ws": "/node_modules/ws/index.js"
+	},
+	"scopes": {}
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"extract-session-info.js","sourceRoot":"","sources":["../../../../s/signal/cores/utils/extract-session-info.ts"],"names":[],"mappings":"AAGA,MAAM,UAAU,kBAAkB,CAAC,OAAgB;IAClD,OAAO;QACN,EAAE,EAAE,OAAO,CAAC,EAAE;QACd,KAAK,EAAE,OAAO,CAAC,KAAK;QACpB,YAAY,EAAE,OAAO,CAAC,YAAY;KAClC,CAAA;AACF,CAAC"}
