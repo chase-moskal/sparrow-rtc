@@ -5,6 +5,7 @@
 
 📦 **`npm install sparrow-rtc`**
 
+🚀 live demo: https://sparrow-demo.benevolent.games/  
 📡 easily establish webrtc connections and transmit data  
 🕹️ provides multiplayer game connectivity for https://benevolent.games/  
 🛠️ we run the signalling server free at `wss://sparrow-rtc.benevolent.games/`  
