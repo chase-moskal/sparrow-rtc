@@ -1,6 +1,6 @@
 
 import {queue} from "../toolbox/queue.js"
-import {ClientState, HandleJoin} from "../types.js"
+import {ClientState, HandleJoin, JoinerControls} from "../types.js"
 import {simplestate} from "../toolbox/simplestate.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
@@ -56,6 +56,16 @@ export async function joinSessionAsClient({
 
 	const {clientId, sessionInfo} = joined
 
+	const pendingJoin = (() => {
+		let resolve: (controls: JoinerControls) => void = () => {}
+		let reject: (error: any) => void = () => {}
+		const promise = new Promise<JoinerControls>((res, rej) => {
+			resolve = res
+			reject = rej
+		})
+		return {promise, resolve, reject}
+	})()
+
 	peer.ondatachannel = event => {
 		const channel = event.channel
 		function kill() {
@@ -64,7 +74,7 @@ export async function joinSessionAsClient({
 			simple.state = {clientId: undefined, sessionInfo: undefined}
 		}
 		channel.onopen = () => {
-			const controls = handleJoin({
+			const controls: JoinerControls = {
 				clientId,
 				close() {
 					kill()
@@ -73,14 +83,16 @@ export async function joinSessionAsClient({
 					if (channel.readyState === "open")
 						channel.send(<any>data)
 				},
-			})
+			}
+			const handlers = handleJoin(controls)
 			channel.onclose = () => {
 				kill()
-				controls.handleClose()
+				handlers.handleClose()
 			}
 			channel.onmessage = event => {
-				controls.handleMessage(event.data)
+				handlers.handleMessage(event.data)
 			}
+			pendingJoin.resolve(controls)
 		}
 	}
 
@@ -96,7 +108,10 @@ export async function joinSessionAsClient({
 	await connection.signalServer.connecting.submitAnswer(sessionInfo.id, clientId, answer)
 	await iceQueue.ready()
 
+	const controls = await pendingJoin.promise
+
 	return {
+		controls,
 		get state() {
 			return simple.state
 		},
