@@ -2,6 +2,7 @@
 export * from "./types.js"
 
 export * from "./toolbox/pub.js"
+export * from "./toolbox/random-id.js"
 export * from "./toolbox/links/session-link.js"
 export * from "./toolbox/links/parse-hash-for-session-id.js"
 

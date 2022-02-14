@@ -1,33 +1,11 @@
 
-export function randomId(): string {
+export function randomId(size = 8) {
+	const palette = [..."0123456789abcdef"]
+	const paletteLength = palette.length
 	let id = ""
-	for (let i = 0; i < 8; i++) {
-		id += randomSample(hex)
+	for (let i = 0; i < size; i += 1) {
+		const paletteIndex = Math.floor(Math.random() * paletteLength)
+		id += palette[paletteIndex]
 	}
-
 	return id
 }
-
-function randomSample<X>(space: X[]) {
-	const index = Math.floor(Math.random() * space.length)
-	return space[index]
-}
-
-const hex = [
-	"0",
-	"1",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6",
-	"7",
-	"8",
-	"9",
-	"a",
-	"b",
-	"c",
-	"d",
-	"e",
-	"f",
-]
