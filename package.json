@@ -22,19 +22,19 @@
 		"start": "run-p start-web-server start-signal-server"
 	},
 	"dependencies": {
-		"renraku": "0.0.0-dev.56"
+		"renraku": "^0.0.3"
 	},
 	"devDependencies": {
-		"@types/node": "^17.0.15",
-		"cynic": "0.1.0-dev.16",
-		"es-module-shims": "^1.4.4",
-		"http-server": "^14.1.0",
-		"importly": "^0.2.0",
-		"mkdirp": "^1.0.4",
+		"@types/node": "^20.11.16",
+		"cynic": "^0.2.1",
+		"es-module-shims": "^1.8.2",
+		"http-server": "^14.1.1",
+		"importly": "^0.2.3",
+		"mkdirp": "^3.0.1",
 		"npm-run-all": "^4.1.5",
-		"rimraf": "^3.0.2",
-		"serve": "^13.0.2",
-		"typescript": "^4.5.5"
+		"rimraf": "^5.0.5",
+		"serve": "^14.2.1",
+		"typescript": "^5.3.3"
 	},
 	"engines": {
 		"node": ">=17"
