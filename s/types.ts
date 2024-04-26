@@ -28,6 +28,11 @@ export interface ClientState {
 	sessionInfo: SessionInfo | undefined
 }
 
+export interface HostControls {
+	close: () => void
+	state: HostState
+}
+
 export interface JoinerControls {
 	clientId: string
 	close(): void
@@ -42,3 +47,4 @@ export interface JoinerHandlers {
 export interface HandleJoin {
 	({}: JoinerControls): JoinerHandlers
 }
+

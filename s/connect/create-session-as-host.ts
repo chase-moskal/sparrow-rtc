@@ -1,7 +1,7 @@
 
 import {queue} from "../toolbox/queue.js"
-import {HandleJoin, HostState} from "../types.js"
 import {simplestate} from "../toolbox/simplestate.js"
+import {HandleJoin, HostControls, HostState} from "../types.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
 export async function createSessionAsHost({
@@ -13,7 +13,7 @@ export async function createSessionAsHost({
 		rtcConfig: RTCConfiguration
 		handleJoin: HandleJoin
 		onStateChange(state: HostState): void
-	}) {
+	}): Promise<HostControls> {
 
 	const peerDetails = new Map<string, {
 		peer: RTCPeerConnection
