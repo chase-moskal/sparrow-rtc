@@ -98,15 +98,15 @@ export async function createSessionAsHost({
 	}, 10_000)
 
 	const session = await connection.signalServer.hosting.establishSession({
+		label,
 		discoverable: true,
-		label: "test session",
 	})
 
 	simple.state = {...simple.state, session}
 
 	return {
-		get state() {
-			return simple.state
-		},
+		close: connection.close,
+		get state() { return simple.state },
 	}
 }
+
