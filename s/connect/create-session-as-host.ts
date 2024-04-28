@@ -47,6 +47,14 @@ export async function createSessionAsHost({
 					peer.close()
 					peerDetails.delete(clientId)
 				}
+				let handleClose = () => {}
+				peer.onconnectionstatechange = () => {
+					const connectionStatus = peer.connectionState
+					if (["disconnected", "failed", "closed"].includes(connectionStatus)) {
+						console.log("peer disconnected")
+						handleClose()
+					}
+				}
 				channel.onopen = () => {
 					const controls = handleJoin({
 						clientId,
@@ -58,6 +66,7 @@ export async function createSessionAsHost({
 							kill()
 						},
 					})
+					handleClose = controls.handleClose
 					channel.onclose = () => {
 						kill()
 						controls.handleClose()
