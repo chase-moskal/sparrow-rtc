@@ -20,31 +20,27 @@ export interface SignalBrowserClient {
 }
 
 export interface HostState {
-	session: Session | undefined
+	session: Session
+	signalServerPing: number
 }
 
 export interface ClientState {
-	clientId: string | undefined
-	sessionInfo: SessionInfo | undefined
+	sessionInfo: SessionInfo
 }
 
 export interface HostControls {
-	close: () => void
 	state: HostState
+	close: () => void
 }
 
-export interface JoinerControls {
+export interface ChannelControls {
 	clientId: string
 	close(): void
 	send(data: string | ArrayBuffer): void
 }
 
-export interface JoinerHandlers {
+export interface ChannelHandlers {
 	handleClose(): void
 	handleMessage(message: string | ArrayBuffer): void
-}
-
-export interface HandleJoin {
-	({}: JoinerControls): JoinerHandlers
 }
 

@@ -1,7 +1,7 @@
 
 import {pub} from "../../toolbox/pub.js"
 import {renderWorld} from "../utils/render-world.js"
-import {HostState, JoinerControls} from "../../types.js"
+import {ChannelControls, HostState} from "../../types.js"
 import {noop as html} from "../../toolbox/template-noop.js"
 import {HeartbeatOptions, HeartbeatWorld} from "../types.js"
 import {sessionLink} from "../../toolbox/links/session-link.js"
@@ -19,8 +19,10 @@ export async function initializeHeartbeatHost({
 		sessionLabel: string
 	}) {
 
+	app.innerHTML = html`<p>...establishing session...</p>`
+
 	type Client = {
-		controls: JoinerControls
+		controls: ChannelControls
 		clientTime: number
 		lastTime: number
 	}
@@ -39,25 +41,22 @@ export async function initializeHeartbeatHost({
 		}
 	}
 
-	function render(state: HostState) {
-		app.innerHTML = state.session?
-			html`
-				<section>
-					<p>session type <span data-cool="2">host</span></p>
-					<p>session id <span data-cool>${state.session.id}</span></p>
-					<p>
-						session join link
-						${(() => {
-							const link = sessionLink(location.href, "session", state.session.id)
-							return html`<a target="_blank" href="${link}">${link}</a>`
-						})()}
-					</p>
-				</section>
-				${renderWorld(calculateWorld())}
-			`:
-			html`
-				<p>...establishing session...</p>
-			`
+	function renderHostState({session, signalServerPing}: HostState) {
+		app.innerHTML = html`
+			<section>
+				<p>session type <span data-cool="2">host</span></p>
+				<p>session id <span data-cool>${session.id}</span></p>
+				<p>signal server ping <span data-cool>${signalServerPing}</span></p>
+				<p>
+					session join link
+					${(() => {
+						const link = sessionLink(location.href, "session", session.id)
+						return html`<a target="_blank" href="${link}">${link}</a>`
+					})()}
+				</p>
+			</section>
+			${renderWorld(calculateWorld())}
+		`
 	}
 
 	const closeEvent = pub()
@@ -66,6 +65,9 @@ export async function initializeHeartbeatHost({
 		rtcConfig,
 		signalServerUrl,
 		label: sessionLabel,
+		onConnectionLost() {
+			app.innerHTML = html`<p>connection lost! refresh to try again</p>`
+		},
 		handleJoin(controls) {
 			const client = {controls, clientTime: 0, lastTime: Date.now()}
 			clients.add(client)
@@ -84,7 +86,7 @@ export async function initializeHeartbeatHost({
 				},
 			}
 		},
-		onStateChange: state => render(state),
+		onStateChange: state => renderHostState(state),
 	})
 
 	setInterval(() => {
@@ -102,7 +104,7 @@ export async function initializeHeartbeatHost({
 		}
 
 		const world = calculateWorld()
-		render(hostConnection.state)
+		renderHostState(hostConnection.state)
 		for (const client of clients)
 			client.controls.send(JSON.stringify(world))
 	}, heartbeatPeriod)
@@ -111,3 +113,4 @@ export async function initializeHeartbeatHost({
 		closeEvent.publish()
 	}
 }
+

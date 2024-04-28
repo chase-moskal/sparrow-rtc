@@ -1,7 +1,7 @@
 
 import {queue} from "../toolbox/queue.js"
-import {ClientState, HandleJoin, JoinerControls} from "../types.js"
 import {simplestate} from "../toolbox/simplestate.js"
+import {ClientState, ChannelControls, ChannelHandlers} from "../types.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
 export async function joinSessionAsClient({
@@ -10,26 +10,23 @@ export async function joinSessionAsClient({
 		rtcConfig,
 		handleJoin,
 		onStateChange,
+		onClosed,
 	}: {
 		signalServerUrl: string
 		sessionId: string
 		rtcConfig: RTCConfiguration
-		handleJoin: HandleJoin
+		onClosed(): void
 		onStateChange(state: ClientState): void
+		handleJoin(controls: ChannelControls): ChannelHandlers
 	}) {
-
-	const simple = simplestate<ClientState>({
-		state: {
-			clientId: undefined,
-			sessionInfo: undefined,
-		},
-		render: onStateChange,
-	})
 
 	const peer = new RTCPeerConnection(rtcConfig)
 
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,
+		onConnectionLost: () => {
+			console.warn("client connection to signal server was lost!!")
+		},
 		client: {
 			async handleIceCandidates(candidates) {
 				for (const candidate of candidates)
@@ -38,28 +35,27 @@ export async function joinSessionAsClient({
 		},
 	})
 
-	const iceQueue = queue(
-		async(candidates: any[]) => await connection.signalServer.connecting
-			.submitIceCandidates(sessionId, simple.state.clientId!, candidates)
-	)
-
-	peer.onicecandidate = event => {
-		const candidate = event.candidate
-		if (candidate) {
-			iceQueue.add(candidate)
-		}
-	}
-
 	const joined = await connection.signalServer.connecting.joinSession(sessionId)
 	if (!joined)
 		throw new Error("failed to join session")
 
 	const {clientId, sessionInfo} = joined
 
+	const iceQueue = queue(
+		async(candidates: any[]) => await connection.signalServer.connecting
+			.submitIceCandidates(sessionId, clientId, candidates)
+	)
+
+	peer.onicecandidate = event => {
+		const candidate = event.candidate
+		if (candidate)
+			iceQueue.add(candidate)
+	}
+
 	const pendingJoin = (() => {
-		let resolve: (controls: JoinerControls) => void = () => {}
+		let resolve: (controls: ChannelControls) => void = () => {}
 		let reject: (error: any) => void = () => {}
-		const promise = new Promise<JoinerControls>((res, rej) => {
+		const promise = new Promise<ChannelControls>((res, rej) => {
 			resolve = res
 			reject = rej
 		})
@@ -68,17 +64,15 @@ export async function joinSessionAsClient({
 
 	peer.ondatachannel = event => {
 		const channel = event.channel
-		function kill() {
+		function close() {
 			channel.close()
 			peer.close()
-			simple.state = {clientId: undefined, sessionInfo: undefined}
+			onClosed()
 		}
 		channel.onopen = () => {
-			const controls: JoinerControls = {
+			const controls: ChannelControls = {
 				clientId,
-				close() {
-					kill()
-				},
+				close,
 				send(data) {
 					if (channel.readyState === "open")
 						channel.send(<any>data)
@@ -86,7 +80,7 @@ export async function joinSessionAsClient({
 			}
 			const handlers = handleJoin(controls)
 			channel.onclose = () => {
-				kill()
+				close()
 				handlers.handleClose()
 			}
 			channel.onmessage = event => {
@@ -94,11 +88,6 @@ export async function joinSessionAsClient({
 			}
 			pendingJoin.resolve(controls)
 		}
-	}
-
-	simple.state = {
-		clientId,
-		sessionInfo: joined.sessionInfo,
 	}
 
 	await peer.setRemoteDescription(joined.offer)
@@ -109,11 +98,18 @@ export async function joinSessionAsClient({
 	await iceQueue.ready()
 
 	const controls = await pendingJoin.promise
+	connection.close()
+
+	const simple = simplestate<ClientState>({
+		state: {sessionInfo},
+		onChange: onStateChange,
+	})
 
 	return {
-		controls,
+		...controls,
 		get state() {
 			return simple.state
 		},
 	}
 }
+

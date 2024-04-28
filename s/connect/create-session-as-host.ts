@@ -1,18 +1,19 @@
 
 import {queue} from "../toolbox/queue.js"
 import {simplestate} from "../toolbox/simplestate.js"
-import {HandleJoin, HostControls, HostState} from "../types.js"
+import {HostControls, HostState, ChannelHandlers, ChannelControls} from "../types.js"
 import {connectToSignalServer} from "./utils/connect-to-signal-server.js"
 
 export async function createSessionAsHost({
 		label, signalServerUrl, rtcConfig,
-		handleJoin, onStateChange,
+		handleJoin, onStateChange, onConnectionLost,
 	}: {
 		label: string
 		signalServerUrl: string
 		rtcConfig: RTCConfiguration
-		handleJoin: HandleJoin
+		onConnectionLost(): void
 		onStateChange(state: HostState): void
+		handleJoin(controls: ChannelControls): ChannelHandlers
 	}): Promise<HostControls> {
 
 	const peerDetails = new Map<string, {
@@ -20,15 +21,9 @@ export async function createSessionAsHost({
 		iceQueue: ReturnType<typeof queue>
 	}>()
 
-	const simple = simplestate<HostState>({
-		state: {
-			session: undefined,
-		},
-		render: onStateChange,
-	})
-
 	const connection = await connectToSignalServer({
 		url: signalServerUrl,
+		onConnectionLost,
 		host: {
 
 			async handleJoiner(clientId) {
@@ -90,23 +85,34 @@ export async function createSessionAsHost({
 		},
 	})
 
-	setInterval(async() => {
-		const start = Date.now()
-		const serverNow = await connection.signalServer.hosting.keepAlive()
-		const ping = Date.now() - start
-		console.log(`ping ${ping}ms, server time ${serverNow}`)
-	}, 10_000)
-
 	const session = await connection.signalServer.hosting.establishSession({
 		label,
 		discoverable: true,
 	})
 
-	simple.state = {...simple.state, session}
+	const simple = simplestate<HostState>({
+		state: {session, signalServerPing: -1},
+		onChange: onStateChange,
+	})
+
+	const ping = async() => {
+		const start = Date.now()
+		await connection.signalServer.hosting.keepAlive()
+		const ping = Date.now() - start
+		simple.state = {...simple.state, signalServerPing: ping}
+	}
+
+	const pingingInterval = setInterval(ping, 10_000)
+	ping()
 
 	return {
-		close: connection.close,
-		get state() { return simple.state },
+		get state() {
+			return simple.state
+		},
+		close: () => {
+			clearInterval(pingingInterval)
+			connection.close()
+		},
 	}
 }
 

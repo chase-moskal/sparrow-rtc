@@ -1,14 +1,14 @@
 
 export function simplestate<xState extends {}>({
 		state: initialState,
-		render
+		onChange,
 	}: {
 		state: xState
-		render: (state: xState) => void
+		onChange: (state: xState) => void
 	}) {
 
 	let currentState = initialState
-	render(currentState)
+	onChange(currentState)
 
 	return {
 		get state() {
@@ -16,7 +16,10 @@ export function simplestate<xState extends {}>({
 		},
 		set state(s: xState) {
 			currentState = s
-			render(currentState)
+			onChange(currentState)
+		},
+		dispatch() {
+			onChange(currentState)
 		},
 	}
 }

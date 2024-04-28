@@ -7,6 +7,7 @@ import {makeSignalBrowserApi} from "../../signal/apis/make-signal-browser-api.js
 
 interface CommonOptions {
 	url: string
+	onConnectionLost: () => void
 }
 
 interface HostOptions extends CommonOptions {
@@ -40,7 +41,9 @@ export async function connectToSignalServer(options: ConnectOptions) {
 				{host: (<HostOptions>options).host, client: duds.client}:
 				{client: (<ClientOptions>options).client, host: duds.host}
 		),
-		handleConnectionClosed() {},
+		handleConnectionClosed() {
+			options.onConnectionLost()
+		},
 		metaMap: {
 			hosting: async() => {},
 			discovery: async() => {},

@@ -18,6 +18,8 @@ export async function initializeHeartbeatClient({
 		sessionId: string
 	}) {
 
+	app.innerHTML = html`<p>...establishing connection...</p>`
+
 	let lastCommunication = Date.now()
 
 	let world: HeartbeatWorld = {
@@ -25,21 +27,21 @@ export async function initializeHeartbeatClient({
 		clients: {},
 	}
 
-	function render(state: ClientState) {
-		app.innerHTML = state.sessionInfo?
-			html`
-				<section>
-					<p>session type <span data-cool="2">client</span></p>
-					<p>session id <span data-cool>${state.sessionInfo.id}</span></p>
-					<p>session label <span data-cool>${state.sessionInfo.label}</span></p>
-					<p>session discoverable <span data-cool>${state.sessionInfo.discoverable}</span></p>
-					<p>client id <span data-cool>${state.clientId ?? "(no client id)"}</span></p>
-				</section>
-				${renderWorld(world)}
-			`:
-			html`
-				<p>no session</p>
-			`
+	function renderClientState(clientId: string, {sessionInfo}: ClientState) {
+		app.innerHTML = html`
+			<section>
+				<p>session type <span data-cool="2">client</span></p>
+				<p>session id <span data-cool>${sessionInfo.id}</span></p>
+				<p>session label <span data-cool>${sessionInfo.label}</span></p>
+				<p>session discoverable <span data-cool>${sessionInfo.discoverable}</span></p>
+				<p>client id <span data-cool>${clientId}</span></p>
+			</section>
+			${renderWorld(world)}
+		`
+	}
+
+	function renderConnectionLost() {
+		app.innerHTML = html`<p>connection lost</p>`
 	}
 
 	const closeEvent = pub()
@@ -48,6 +50,9 @@ export async function initializeHeartbeatClient({
 		sessionId,
 		rtcConfig,
 		signalServerUrl,
+		onClosed() {
+			renderConnectionLost()
+		},
 		handleJoin({send, close}) {
 			lastCommunication = Date.now()
 			const unsubscribeCloseEvent = closeEvent.subscribe(close)
@@ -55,6 +60,7 @@ export async function initializeHeartbeatClient({
 				const timeSinceLastCommunication = Date.now() - lastCommunication
 				if (timeSinceLastCommunication > timeout) {
 					console.log("host timed out")
+					renderConnectionLost()
 					close()
 				}
 				else {
@@ -71,11 +77,12 @@ export async function initializeHeartbeatClient({
 					lastCommunication = Date.now()
 					const newWorld = JSON.parse(<string>message)
 					world = newWorld
-					render(clientConnection.state)
+					const {clientId, state} = clientConnection
+					renderClientState(clientId, state)
 				},
 			}
 		},
-		onStateChange: render,
+		onStateChange: state => renderClientState(clientConnection.clientId, state),
 	})
 
 	window.onbeforeunload = () => {
