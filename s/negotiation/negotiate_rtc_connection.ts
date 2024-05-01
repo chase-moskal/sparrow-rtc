@@ -6,37 +6,45 @@ import {Partner} from "./types.js"
  * first, we attempt the connection with the host as the offerer.
  * if that doesn't work, then we attempt the connection with the client as the offerer.
  */
-export async function negotiate_rtc_connection(host: Partner, client: Partner) {
+export default async function(host: Partner, client: Partner) {
+	const iceExchange = start_exchanging_ice_candidates(host, client)
 	return attempt_rtc_connection(host, client).then(() => true)
 		.catch(() => attempt_rtc_connection(client, host)).then(() => true)
 		.catch(() => false)
+		.finally(() => iceExchange.stop())
 }
 
-//////
+//////////////////////////////////////////////////
+
+/**
+ * allow the browser peers to freely exchange ice canadidates with each other.
+ */
+function start_exchanging_ice_candidates(alice: Partner, bob: Partner) {
+	const stopA = alice.onIceCandidate(bob.acceptIceCandidate)
+	const stopB = bob.onIceCandidate(alice.acceptIceCandidate)
+	return {
+		stop: () => {
+			stopA()
+			stopB()
+		},
+	}
+}
 
 /**
  * we coordinate the peers to exchange offer, answer, and ice candidates.
  * we also wait to see if both peers say the connection was successful or not.
  */
 async function attempt_rtc_connection(offerer: Partner, answerer: Partner) {
-	const doneIce = startExchangingIceCandidates(offerer, answerer)
+	await Promise.all([
+		offerer.startPeerConnection(),
+		answerer.startPeerConnection(),
+	])
 	const offer = await offerer.produceOffer()
 	const answer = await answerer.produceAnswer(offer)
 	await offerer.acceptAnswer(answer)
-	await doneIce
-}
-
-//////
-
-function startExchangingIceCandidates(alice: Partner, bob: Partner) {
-	return Promise.all([
-		iceForwarding(alice, bob),
-		iceForwarding(bob, alice),
+	await Promise.all([
+		offerer.waitUntilReady(),
+		answerer.waitUntilReady(),
 	])
-}
-
-async function iceForwarding(alpha: Partner, bravo: Partner) {
-	const stopListening = alpha.onIceCandidate(bravo.acceptIceCandidate)
-	await alpha.waitUntilReady().finally(stopListening)
 }
 
