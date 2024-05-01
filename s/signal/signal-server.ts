@@ -18,21 +18,21 @@ const sessionManager = makeSessionManager()
 
 webSocketServer({
 	port,
-	exposeErrors: true,
 	timeout: 10_000,
+	exposeErrors: true,
 	maxPayloadSize: renraku.megabytes(10),
-	acceptConnection: ({controls, prepareClientApi}) => {
+	acceptConnection: ({prepareClientApi}) => {
 		const clientId = count++
 		console.log("connection opened", clientId)
-		const emptyMetaMapForNoAuth = {
-			host: async() => {},
-			client: async() => {},
-		}
+
+		const noAuth = {host: async() => {}, client: async() => {}}
 		const signalBrowser = prepareClientApi<ReturnType<typeof makeSignalBrowserApi>>(
-			emptyMetaMapForNoAuth
+			noAuth
 		)
+
 		const sessionProvider = sessionManager.makeSessionProvider({signalBrowser})
 		const clientManager = sessionManager.makeClientManager(signalBrowser.client)
+
 		return {
 			handleConnectionClosed() {
 				console.log("connection closed", clientId)

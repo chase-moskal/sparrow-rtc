@@ -3,7 +3,6 @@ import {Suite} from "cynic"
 
 export default <Suite>{
 	"signal server": {
-
 		async "owner starts a session, and two joiners join"() { return true },
 
 		"session administration": {

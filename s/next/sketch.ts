@@ -1,7 +1,7 @@
 
 export type Id = string
 
-export class SessionManager {
+export class Sessions {
 	#owners = new Map<Id, {}>()
 	#joiners = new Map<Id, {}>()
 }

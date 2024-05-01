@@ -1,16 +1,22 @@
 
-import {concurrent} from "../toolbox/concurrent.js"
-import {openPromise} from "../toolbox/open-promise.js"
 import make_peer_group from "./parts/make_peer_group.js"
-import {PeerReport, PartnerApi, PeerGroup, SignalMediatorApi} from "./types.js"
+import {PartnerApi, PeerGroup, SignalMediatorApi} from "./types.js"
 
-export default function(
-		mediator: SignalMediatorApi,
-		rtcConfig: RTCConfiguration,
-	) {
+export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle"
+
+export default function({
+		mediator,
+		rtcConfig,
+		onConnected,
+		onConnectionChange,
+	}: {
+		mediator: SignalMediatorApi
+		rtcConfig: RTCConfiguration
+		onConnected: (group: PeerGroup) => {}
+		onConnectionChange: (status: ConnectionStatus) => {}
+	}) {
 
 	let peerGroup: PeerGroup
-	const report = openPromise<PeerReport>()
 
 	function requirement() {
 		if (peerGroup) return peerGroup
@@ -19,15 +25,13 @@ export default function(
 
 	const partner: PartnerApi = {
 		async startPeerConnection() {
+			onConnectionChange("start")
 			if (peerGroup) peerGroup.peer.close()
 			peerGroup = make_peer_group(mediator, rtcConfig)
-			const {dataChannel, connection, ice} = peerGroup
-			concurrent({ice, dataChannel, connection})
-				.then(report.resolve)
-				.then(report.reject)
 		},
 
 		async produceOffer(): Promise<any> {
+			onConnectionChange("offer")
 			const {peer} = requirement()
 			const channel = peer.createDataChannel("data", {
 				ordered: false,
@@ -40,6 +44,7 @@ export default function(
 		},
 
 		async produceAnswer(offer: any): Promise<any> {
+			onConnectionChange("answer")
 			const {peer} = requirement()
 			await peer.setRemoteDescription(offer)
 			const answer = await peer.createAnswer()
@@ -48,11 +53,13 @@ export default function(
 		},
 
 		async acceptAnswer(answer: any): Promise<void> {
+			onConnectionChange("accept")
 			const {peer} = requirement()
 			await peer.setRemoteDescription(answer)
 		},
 
 		async waitUntilReady() {
+			onConnectionChange("trickle")
 			const {dataChannel} = requirement()
 			return dataChannel.then(() => {})
 		},
@@ -63,9 +70,6 @@ export default function(
 		},
 	}
 
-	return {
-		partner,
-		report: report.promise,
-	}
+	return partner
 }
 
