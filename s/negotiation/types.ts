@@ -4,7 +4,7 @@
  * these are the levers that the signal server can pull to control each peer during the connection process.
  * the signal server acts like a "traffic cop" (with the whistle), directing each peer what do do and when in order to coordinate a successful connection.
  */
-export type PartnerApi = {
+export type PartnerMethods = {
 	startPeerConnection(): Promise<void>
 	produceOffer(): Promise<RTCSessionDescription>
 	produceAnswer(offer: RTCSessionDescription): Promise<RTCSessionDescription>
@@ -13,13 +13,9 @@ export type PartnerApi = {
 	waitUntilReady(): Promise<void>
 }
 
-export type SignalMediatorApi = {
-	sendIceCandidate(ice: any): Promise<void>,
-}
-
 export type Partner = {
 	onIceCandidate(fn: (ice: any) => void): (() => void)
-} & PartnerApi
+} & PartnerMethods
 
 export type IceReport = {good: number, bad: number}
 
@@ -35,4 +31,6 @@ export type PeerGroup = {
 	dataChannel: Promise<RTCDataChannel>
 	connection: Promise<RTCPeerConnection>
 }
+
+export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle"
 

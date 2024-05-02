@@ -1,9 +1,10 @@
 
+import {ServerRemote} from "../../next/types.js"
+import {IceReport, PeerGroup} from "../types.js"
 import {attachEvents} from "../../toolbox/attach-events.js"
-import {IceReport, PeerGroup, SignalMediatorApi} from "../types.js"
 
 export default function(
-		mediator: SignalMediatorApi,
+		mediator: ServerRemote["mediator"],
 		rtcConfig: RTCConfiguration,
 	): PeerGroup {
 
@@ -13,8 +14,11 @@ export default function(
 		const report: IceReport = {good: 0, bad: 0}
 		const unattach = attachEvents(peer, {
 			icecandidate: (event: RTCPeerConnectionIceEvent) => {
-				mediator.sendIceCandidate(event.candidate)
-				report.good += 1
+				if (event.candidate) {
+					mediator.sendIceCandidate(event.candidate)
+					report.good += 1
+				}
+				else report.bad += 1
 			},
 			icecandidateerror: () => {
 				report.bad += 1
