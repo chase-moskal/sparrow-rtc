@@ -1,9 +1,11 @@
 
 import * as Renraku from "renraku"
 
+import {BrowserApi} from "../types.js"
 import {hex_id} from "../../toolbox/id.js"
-import {BrowserApi} from "../api/browser.js"
-import {Signaller} from "../core/signaller.js"
+import {browserMetas} from "../api/metas.js"
+import {makeServerApi} from "../api/server.js"
+import {SignalCore} from "../core/signal-core.js"
 
 export class SignalConnection implements Renraku.SocketHandling {
 	readonly id = hex_id()
@@ -12,15 +14,14 @@ export class SignalConnection implements Renraku.SocketHandling {
 
 	constructor(
 			public readonly socket: Renraku.SocketConnection,
-			public readonly signaller: Signaller,
+			public readonly signalCore: SignalCore,
 		) {
 
-		socket.prepareClientApi<BrowserApi>({
-			partner: async() => {},
-		})
-
-		this.api = {} as any
-		this.handleConnectionClosed = () => {}
+		const browser = socket.prepareClientApi<BrowserApi>(browserMetas)
+		this.api = makeServerApi(this)
+		this.handleConnectionClosed = () => {
+			signalCore.connections.delete(this.id)
+		}
 	}
 }
 

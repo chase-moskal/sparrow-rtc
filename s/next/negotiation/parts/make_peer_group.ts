@@ -3,7 +3,7 @@ import {attachEvents} from "../../../toolbox/attach-events.js"
 import {IceReport, PeerGroup, ServerRemote} from "../../types.js"
 
 export default function(
-		mediator: ServerRemote["mediator"],
+		mediator: ServerRemote["v1"]["mediator"],
 		rtcConfig: RTCConfiguration,
 	): PeerGroup {
 

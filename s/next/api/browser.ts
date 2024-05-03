@@ -3,10 +3,8 @@ import * as Renraku from "renraku"
 import make_peer_group from "../negotiation/parts/make_peer_group.js"
 import {ConnectionStatus, PeerGroup, ServerRemote} from "../types.js"
 
-export type BrowserApi = ReturnType<typeof makeBrowserApi>
-
 export function makeBrowserApi({
-		server: {mediator},
+		server: {v1: {mediator}},
 		rtcConfig,
 		onConnected,
 		onConnectionChange,
@@ -24,7 +22,7 @@ export function makeBrowserApi({
 		else throw new Error("invalid, peer connection not yet started")
 	}
 
-	return Renraku.api({
+	const v1 = Renraku.api({
 
 		/**
 		 * this is the service that each browser peer exposes to the signalling server.
@@ -78,5 +76,7 @@ export function makeBrowserApi({
 			},
 		})),
 	})
+
+	return Renraku.api({v1})
 }
 

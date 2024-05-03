@@ -15,7 +15,7 @@ export type BrowserRemote = Renraku.Remote<BrowserApi>
 
 export type Partner = {
 	onIceCandidate(fn: (ice: any) => void): (() => void)
-} & BrowserRemote["partner"]
+} & BrowserRemote["v1"]["partner"]
 
 export type IceReport = {good: number, bad: number}
 
