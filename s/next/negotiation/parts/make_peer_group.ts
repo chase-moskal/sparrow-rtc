@@ -1,7 +1,6 @@
 
-import {ServerRemote} from "../../next/types.js"
-import {IceReport, PeerGroup} from "../types.js"
-import {attachEvents} from "../../toolbox/attach-events.js"
+import {attachEvents} from "../../../toolbox/attach-events.js"
+import {IceReport, PeerGroup, ServerRemote} from "../../types.js"
 
 export default function(
 		mediator: ServerRemote["mediator"],

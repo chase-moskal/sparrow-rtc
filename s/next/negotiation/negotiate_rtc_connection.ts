@@ -1,5 +1,5 @@
 
-import {Partner} from "./types.js"
+import {Partner} from "../types.js"
 
 /**
  * this is the signal server's routine for establishing a webrtc connection between a host and client browser peers.

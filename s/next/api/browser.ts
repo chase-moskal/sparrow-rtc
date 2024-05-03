@@ -1,8 +1,7 @@
 
 import * as Renraku from "renraku"
-import {ServerRemote} from "../types.js"
-import {ConnectionStatus, PeerGroup} from "../../negotiation/types.js"
-import make_peer_group from "../../negotiation/parts/make_peer_group.js"
+import make_peer_group from "../negotiation/parts/make_peer_group.js"
+import {ConnectionStatus, PeerGroup, ServerRemote} from "../types.js"
 
 export type BrowserApi = ReturnType<typeof makeBrowserApi>
 
@@ -26,6 +25,12 @@ export function makeBrowserApi({
 	}
 
 	return Renraku.api({
+
+		/**
+		 * this is the service that each browser peer exposes to the signalling server.
+		 * these are the levers that the signal server can pull to control each peer during the connection process.
+		 * the signal server acts like a "traffic cop" (with the whistle), directing each peer to coordinate a successful connection.
+		 */
 		partner: Renraku.serviette(() => ({
 			async startPeerConnection() {
 				onConnectionChange("start")
