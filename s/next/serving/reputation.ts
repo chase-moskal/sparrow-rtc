@@ -4,7 +4,7 @@ import {IdentityClaim} from "../types.js"
 import {hex_id} from "../../toolbox/id.js"
 import {Connection} from "./connection.js"
 
-export class Identity {
+export class Reputation {
 	readonly id = hex_id()
 	readonly secret = hex_id()
 

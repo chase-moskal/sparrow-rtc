@@ -3,10 +3,10 @@ import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
 import {Session} from "../core/session.js"
-import {Id, IdentityClaim, Partner, SessionInfo} from "../types.js"
-import {Identity} from "../serving/identity.js"
+import {Reputation} from "../serving/reputation.js"
 import {Connection} from "../serving/connection.js"
 import {ServerHelpers} from "./utils/server-helpers.js"
+import {Id, IdentityClaim, Partner, SessionInfo} from "../types.js"
 import negotiate_rtc_connection from "../negotiation/negotiate_rtc_connection.js"
 
 export function makeServerApi(core: Core, connection: Connection) {
@@ -19,7 +19,7 @@ export function makeServerApi(core: Core, connection: Connection) {
 			},
 
 			async createIdentity() {
-				const identity = new Identity()
+				const identity = new Reputation()
 				core.identities.set(identity.id, identity)
 				return identity.claim
 			},

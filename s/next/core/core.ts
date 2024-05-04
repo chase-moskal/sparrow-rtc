@@ -2,11 +2,11 @@
 import {Id} from "../types.js"
 import {IdMap} from "./id-map.js"
 import {Session} from "./session.js"
-import {Identity} from "../serving/identity.js"
+import {Reputation} from "../serving/reputation.js"
 import {Connection} from "../serving/connection.js"
 
 export class Core {
-	readonly identities = new IdMap<Identity>()
+	readonly identities = new IdMap<Reputation>()
 	readonly sessions = new IdMap<Session>()
 	readonly connections = new IdMap<Connection>()
 

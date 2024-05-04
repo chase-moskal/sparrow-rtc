@@ -1,12 +1,12 @@
 
 import {Core} from "../../core/core.js"
-import {Identity} from "../identity.js"
+import {Reputation} from "../reputation.js"
 
 const how_many_minutes = 10
 
 export default function(core: Core) {
 	const now = Date.now()
-	const deathrow: Identity[] = []
+	const deathrow: Reputation[] = []
 
 	for (const identity of core.identities.values()) {
 		const since = now - identity.lastContact

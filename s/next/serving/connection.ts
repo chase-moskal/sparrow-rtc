@@ -2,10 +2,10 @@
 import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
-import {Identity} from "./identity.js"
 import {pub} from "../../toolbox/pub.js"
 import {hex_id} from "../../toolbox/id.js"
-import {makeServerApi} from "../api/server.js"
+import {Reputation} from "./reputation.js"
+import {makeServerApi} from "../api/server-api.js"
 import {browserMetas} from "../api/utils/metas.js"
 import {BrowserApi, BrowserRemote} from "../types.js"
 
@@ -16,7 +16,7 @@ export class Connection {
 
 	readonly onIceCandidate = pub<(ice: RTCIceCandidate) => void>()
 
-	identity: Identity | null = null
+	identity: Reputation | null = null
 
 	constructor(
 			public readonly socket: Renraku.SocketConnection,
