@@ -6,7 +6,7 @@ import {Partner} from "../types.js"
  * first, we attempt the connection with the host as the offerer.
  * if that doesn't work, then we attempt the connection with the client as the offerer.
  */
-export default async function(host: Partner, client: Partner) {
+export async function negotiate_rtc_connection(host: Partner, client: Partner) {
 	const iceExchange = start_exchanging_ice_candidates(host, client)
 	return attempt_rtc_connection(host, client).then(() => true)
 		.catch(() => attempt_rtc_connection(client, host)).then(() => true)

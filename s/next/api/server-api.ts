@@ -7,7 +7,7 @@ import {Reputation} from "../serving/reputation.js"
 import {Connection} from "../serving/connection.js"
 import {ServerHelpers} from "./utils/server-helpers.js"
 import {Id, IdentityClaim, Partner, SessionInfo} from "../types.js"
-import negotiate_rtc_connection from "../negotiation/negotiate_rtc_connection.js"
+import {negotiate_rtc_connection} from "../negotiation/negotiate_rtc_connection.js"
 
 export function makeServerApi(core: Core, connection: Connection) {
 	const we = new ServerHelpers(core, connection)

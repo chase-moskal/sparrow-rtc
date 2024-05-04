@@ -5,7 +5,7 @@ import {webSocketServer} from "renraku/x/websocket/socket-server.js"
 import {Core} from "./core/core.js"
 import {Connection} from "./serving/connection.js"
 import {deathWithDignity} from "../toolbox/death-with-dignity.js"
-import delete_identities_after_awhile from "./serving/utils/delete_identities_after_awhile.js"
+import {delete_identities_after_awhile} from "./serving/utils/delete_identities_after_awhile.js"
 
 deathWithDignity()
 

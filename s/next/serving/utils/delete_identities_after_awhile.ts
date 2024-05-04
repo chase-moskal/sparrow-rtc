@@ -4,7 +4,7 @@ import {Reputation} from "../reputation.js"
 
 const how_many_minutes = 10
 
-export default function(core: Core) {
+export function delete_identities_after_awhile(core: Core) {
 	const now = Date.now()
 	const deathrow: Reputation[] = []
 

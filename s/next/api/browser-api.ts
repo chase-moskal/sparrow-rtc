@@ -1,6 +1,6 @@
 
 import * as Renraku from "renraku"
-import make_peer_group from "../negotiation/parts/make_peer_group.js"
+import {make_peer_group} from "../negotiation/parts/make_peer_group.js"
 import {ConnectionStatus, PeerGroup, ServerRemote} from "../types.js"
 
 export function makeBrowserApi({

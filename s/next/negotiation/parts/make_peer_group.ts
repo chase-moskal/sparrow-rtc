@@ -2,7 +2,7 @@
 import {attachEvents} from "../../../toolbox/attach-events.js"
 import {IceReport, PeerGroup, ServerRemote} from "../../types.js"
 
-export default function(
+export function make_peer_group(
 		peering: ServerRemote["v1"]["peering"],
 		rtcConfig: RTCConfiguration,
 	): PeerGroup {
