@@ -27,6 +27,14 @@ export function setup() {
 
 /////////////////////////////////////////////
 
+function mockSocketConnection(browser: BrowserRemote): Renraku.SocketConnection {
+	return {
+		headers: {},
+		controls: {ping: () => {}, close: () => {}},
+		prepareClientApi: () => browser as any,
+	}
+}
+
 function mockBrowser(): BrowserRemote {
 	return {v1: {partner: {
 		async acceptIceCandidate(ice) {},
@@ -36,13 +44,5 @@ function mockBrowser(): BrowserRemote {
 		async produceAnswer(offer) {},
 		async waitUntilReady() {},
 	}}}
-}
-
-function mockSocketConnection(browser: BrowserRemote): Renraku.SocketConnection {
-	return {
-		headers: {},
-		controls: {ping: () => {}, close: () => {}},
-		prepareClientApi: () => browser as any,
-	}
 }
 
