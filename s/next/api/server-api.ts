@@ -35,10 +35,10 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 				return Date.now()
 			},
 
-			async createIdentity() {
-				const identity = new Reputation()
-				core.identities.set(identity.id, identity)
-				return identity.claim
+			async createReputation() {
+				const reputation = new Reputation()
+				core.identities.set(reputation.id, reputation)
+				return reputation.claim
 			},
 
 			async claimIdentity(claim: IdentityClaim) {
