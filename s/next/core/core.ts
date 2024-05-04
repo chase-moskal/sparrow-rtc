@@ -58,10 +58,6 @@ export class Core {
 		return {connection, handling}
 	}
 
-	handleConnectionDied(connectionId: Id) {
-		const connection = this.connections.require(connectionId)
-	}
-
 	cullExpiredReputations() {
 		const how_many_minutes = 10
 		const now = Date.now()
