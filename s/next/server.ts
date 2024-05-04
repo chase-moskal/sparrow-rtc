@@ -3,7 +3,6 @@ import * as renraku from "renraku"
 import {webSocketServer} from "renraku/x/websocket/socket-server.js"
 
 import {Core} from "./core/core.js"
-import {Connection} from "./serving/connection.js"
 import {deathWithDignity} from "../toolbox/death-with-dignity.js"
 import {delete_identities_after_awhile} from "./serving/utils/delete_identities_after_awhile.js"
 
@@ -22,10 +21,6 @@ webSocketServer({
 		? parseInt(process.argv[2])
 		: 8192,
 
-	acceptConnection: socket => {
-		const connection = new Connection(socket, core)
-		core.connections.add(connection)
-		return connection.socketHandling
-	},
+	acceptConnection: socket => core.acceptConnection(socket).handling,
 })
 

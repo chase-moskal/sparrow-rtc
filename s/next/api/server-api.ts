@@ -9,11 +9,28 @@ import {ServerHelpers} from "./utils/server-helpers.js"
 import {Id, IdentityClaim, Partner, SessionInfo} from "../types.js"
 import {negotiate_rtc_connection} from "../negotiation/negotiate_rtc_connection.js"
 
-export function makeServerApi(core: Core, connection: Connection) {
-	const we = new ServerHelpers(core, connection)
+export type ServerAuth = {
+	connection: Connection
+	we: ServerHelpers
+}
+
+export function makeServerApi(core: Core, getConnection: () => Connection) {
+
+	const policy = async(): Promise<ServerAuth> => {
+		const connection = getConnection()
+		const we = new ServerHelpers(core, connection)
+		return {connection, we}
+	}
+
+	const service = <M extends Renraku.Methods>(
+			fn: (auth: ServerAuth) => M
+		) => Renraku
+		.service()
+		.policy(policy)
+		.expose(fn)
 
 	const v1 = Renraku.api({
-		basic: Renraku.serviette(() => ({
+		basic: service(({connection, we}) => ({
 			async keepAlive() {
 				return Date.now()
 			},
@@ -32,9 +49,10 @@ export function makeServerApi(core: Core, connection: Connection) {
 				}
 				else return false
 			},
+
 		})),
 
-		hosting: Renraku.serviette(() => ({
+		hosting: service(({connection, we}) => ({
 			async startSession(o: {
 					label: string
 					maxClients: number
@@ -66,7 +84,7 @@ export function makeServerApi(core: Core, connection: Connection) {
 			},
 		})),
 
-		discovery: Renraku.serviette(() => ({
+		discovery: service(({connection, we}) => ({
 			async querySessions() {
 				const limit = 100
 				let count = 1
@@ -80,7 +98,7 @@ export function makeServerApi(core: Core, connection: Connection) {
 			},
 		})),
 
-		peering: Renraku.serviette(() => ({
+		peering: service(({connection, we}) => ({
 			async joinSession(o: {sessionId: Id}) {
 				we.haveIdentity()
 				const clientPartner: Partner = {

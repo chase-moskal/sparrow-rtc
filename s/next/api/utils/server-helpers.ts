@@ -4,7 +4,7 @@ import {Session} from "../../core/session.js"
 import {Connection} from "../../serving/connection.js"
 
 export class ServerHelpers {
-	constructor(public core: Core, public connection: Connection) {}
+	constructor(private core: Core, private connection: Connection) {}
 
 	haveIdentity() {
 		const {identity} = this.connection

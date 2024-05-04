@@ -1,7 +1,11 @@
 
-import {Id} from "../types.js"
+import * as Renraku from "renraku"
+
 import {IdMap} from "./id-map.js"
 import {Session} from "./session.js"
+import {BrowserApi, Id} from "../types.js"
+import {browserMetas} from "../api/utils/metas.js"
+import {makeServerApi} from "../api/server-api.js"
 import {Reputation} from "../serving/reputation.js"
 import {Connection} from "../serving/connection.js"
 
@@ -33,6 +37,25 @@ export class Core {
 			const connection = this.connections.require(connectionId)
 			connection.browser.v1
 		}
+	}
+
+	acceptConnection(
+			socket: Renraku.SocketConnection,
+			browser = socket.prepareClientApi<BrowserApi>(browserMetas),
+		) {
+
+		const serverApi = makeServerApi(this, () => connection)
+		const connection = new Connection(socket, browser)
+		this.connections.add(connection)
+
+		const handling: Renraku.SocketHandling = {
+			api: serverApi,
+			handleConnectionClosed: () => {
+				this.connections.delete(connection.id)
+			},
+		}
+
+		return {connection, handling}
 	}
 
 	handleConnectionDied(connectionId: Id) {
