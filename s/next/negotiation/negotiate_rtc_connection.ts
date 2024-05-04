@@ -20,8 +20,8 @@ export default async function(host: Partner, client: Partner) {
  * allow the browser peers to freely exchange ice canadidates with each other.
  */
 function start_exchanging_ice_candidates(alice: Partner, bob: Partner) {
-	const stopA = alice.onIceCandidate(bob.onIceCandidate)
-	const stopB = bob.onIceCandidate(alice.onIceCandidate)
+	const stopA = alice.onIceCandidate(bob.acceptIceCandidate)
+	const stopB = bob.onIceCandidate(alice.acceptIceCandidate)
 	return {
 		stop: () => {
 			stopA()

@@ -4,7 +4,7 @@ import make_peer_group from "../negotiation/parts/make_peer_group.js"
 import {ConnectionStatus, PeerGroup, ServerRemote} from "../types.js"
 
 export function makeBrowserApi({
-		server: {v1: {mediator}},
+		server: {v1: {peering}},
 		rtcConfig,
 		onConnected,
 		onConnectionChange,
@@ -33,7 +33,7 @@ export function makeBrowserApi({
 			async startPeerConnection() {
 				onConnectionChange("start")
 				if (peerGroup) peerGroup.peer.close()
-				peerGroup = make_peer_group(mediator, rtcConfig)
+				peerGroup = make_peer_group(peering, rtcConfig)
 			},
 
 			async produceOffer(): Promise<any> {
@@ -49,7 +49,7 @@ export function makeBrowserApi({
 				return offer
 			},
 
-			async produceAnswer(offer: any): Promise<any> {
+			async produceAnswer(offer: RTCSessionDescription): Promise<any> {
 				onConnectionChange("answer")
 				const {peer} = requirement()
 				await peer.setRemoteDescription(offer)
@@ -58,7 +58,7 @@ export function makeBrowserApi({
 				return answer
 			},
 
-			async acceptAnswer(answer: any): Promise<void> {
+			async acceptAnswer(answer: RTCSessionDescription): Promise<void> {
 				onConnectionChange("accept")
 				const {peer} = requirement()
 				await peer.setRemoteDescription(answer)
@@ -70,7 +70,7 @@ export function makeBrowserApi({
 				return dataChannel.then(() => {})
 			},
 
-			async acceptIceCandidate(ice: any): Promise<void> {
+			async acceptIceCandidate(ice: RTCIceCandidate): Promise<void> {
 				const {peer} = requirement()
 				await peer.addIceCandidate(ice)
 			},

@@ -3,7 +3,7 @@ import {attachEvents} from "../../../toolbox/attach-events.js"
 import {IceReport, PeerGroup, ServerRemote} from "../../types.js"
 
 export default function(
-		mediator: ServerRemote["v1"]["mediator"],
+		peering: ServerRemote["v1"]["peering"],
 		rtcConfig: RTCConfiguration,
 	): PeerGroup {
 
@@ -14,7 +14,7 @@ export default function(
 		const unattach = attachEvents(peer, {
 			icecandidate: (event: RTCPeerConnectionIceEvent) => {
 				if (event.candidate) {
-					mediator.sendIceCandidate(event.candidate)
+					peering.sendIceCandidate(event.candidate)
 					report.good += 1
 				}
 				else report.bad += 1
