@@ -10,25 +10,25 @@ import {Reputation} from "../serving/reputation.js"
 import {Connection} from "../serving/connection.js"
 
 export class Core {
-	readonly identities = new IdMap<Reputation>()
+	readonly reputations = new IdMap<Reputation>()
 	readonly sessions = new IdMap<Session>()
 	readonly connections = new IdMap<Connection>()
 
 	readonly sessionAndHost = new Map<Id, Id>()
 	readonly hostAndSession = new Map<Id, Id>()
 
-	setHost(sessionId: Id, identityId: Id) {
-		this.sessionAndHost.set(sessionId, identityId)
-		this.hostAndSession.set(identityId, sessionId)
+	setHost(sessionId: Id, reputationId: Id) {
+		this.sessionAndHost.set(sessionId, reputationId)
+		this.hostAndSession.set(reputationId, sessionId)
 	}
 
-	isHosting(sessionId: Id, identityId: Id) {
-		return this.sessionAndHost.get(sessionId) === identityId
+	isHosting(sessionId: Id, reputationId: Id) {
+		return this.sessionAndHost.get(sessionId) === reputationId
 	}
 
 	getSessionHost(sessionId: Id) {
-		const identityId = this.sessionAndHost.get(sessionId)!
-		return this.identities.require(identityId)
+		const reputationId = this.sessionAndHost.get(sessionId)!
+		return this.reputations.require(reputationId)
 	}
 
 	terminateSession(session: Session) {
@@ -60,6 +60,22 @@ export class Core {
 
 	handleConnectionDied(connectionId: Id) {
 		const connection = this.connections.require(connectionId)
+	}
+
+	cullExpiredReputations() {
+		const how_many_minutes = 10
+		const now = Date.now()
+		const deathrow: Reputation[] = []
+
+		for (const reputation of this.reputations.values()) {
+			const since = now - reputation.lastContact
+			const lifespan = how_many_minutes * (60_000)
+			if (since > lifespan)
+				deathrow.push(reputation)
+		}
+
+		for (const reputation of deathrow)
+			this.reputations.delete(reputation.id)
 	}
 }
 

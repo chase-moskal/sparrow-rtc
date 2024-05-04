@@ -4,7 +4,7 @@ import {makeServerApi} from "./api/server-api.js"
 import {makeBrowserApi} from "./api/browser-api.js"
 
 export type Id = string
-export type IdentityClaim = {id: Id, secret: Id}
+export type ReputationClaim = {id: Id, secret: Id}
 
 export type ServerApi = ReturnType<typeof makeServerApi>
 export type ServerRemote = Renraku.Remote<ServerApi>

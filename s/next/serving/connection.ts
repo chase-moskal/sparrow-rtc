@@ -10,7 +10,7 @@ export class Connection {
 	readonly id = hex_id()
 	readonly onIceCandidate = pub<(ice: RTCIceCandidate) => void>()
 
-	identity: Reputation | null = null
+	reputation: Reputation | null = null
 
 	constructor(
 		public readonly socket: Renraku.SocketConnection,

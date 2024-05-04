@@ -1,6 +1,6 @@
 
 import {Session} from "../../types.js"
-import {IdentityClaim} from "../types.js"
+import {ReputationClaim} from "../types.js"
 import {hex_id} from "../../toolbox/id.js"
 import {Connection} from "./connection.js"
 
@@ -13,7 +13,7 @@ export class Reputation {
 	hosting: Session | null = null
 	connection: Connection | null = null
 
-	readonly claim: IdentityClaim = {
+	readonly claim: ReputationClaim = {
 		id: this.id,
 		secret: this.secret,
 	}

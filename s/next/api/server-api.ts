@@ -6,7 +6,7 @@ import {Session} from "../core/session.js"
 import {Reputation} from "../serving/reputation.js"
 import {Connection} from "../serving/connection.js"
 import {ServerHelpers} from "./utils/server-helpers.js"
-import {Id, IdentityClaim, Partner, SessionInfo} from "../types.js"
+import {Id, ReputationClaim, Partner, SessionInfo} from "../types.js"
 import {negotiate_rtc_connection} from "../negotiation/negotiate_rtc_connection.js"
 
 export type ServerAuth = {
@@ -37,14 +37,14 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 
 			async createReputation() {
 				const reputation = new Reputation()
-				core.identities.set(reputation.id, reputation)
+				core.reputations.set(reputation.id, reputation)
 				return reputation.claim
 			},
 
-			async claimIdentity(claim: IdentityClaim) {
-				const identity = core.identities.get(claim.id)
-				if (identity && identity.secret === claim.secret) {
-					connection.identity = identity
+			async claimReputation(claim: ReputationClaim) {
+				const reputation = core.reputations.get(claim.id)
+				if (reputation && reputation.secret === claim.secret) {
+					connection.reputation = reputation
 					return true
 				}
 				else return false
@@ -58,9 +58,9 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 					maxClients: number
 					discoverable: boolean
 				}) {
-				const identity = we.haveIdentity()
+				const reputation = we.haveReputation()
 				const session = new Session({
-					host: identity.id,
+					host: reputation.id,
 					maxClients: o.maxClients,
 				})
 				session.label = o.label
@@ -100,13 +100,13 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 
 		peering: service(({connection, we}) => ({
 			async joinSession(o: {sessionId: Id}) {
-				we.haveIdentity()
+				we.haveReputation()
 				const clientPartner: Partner = {
 					...connection.browser.v1.partner,
 					onIceCandidate: fn => connection.onIceCandidate.subscribe(fn),
 				}
-				const hostIdentity = core.getSessionHost(o.sessionId)
-				const hostConnection = hostIdentity.connection
+				const hostReputation = core.getSessionHost(o.sessionId)
+				const hostConnection = hostReputation.connection
 				if (!hostConnection) return false
 				const hostPartner: Partner = {
 					...hostConnection.browser.v1.partner,
@@ -115,7 +115,7 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 				await negotiate_rtc_connection(clientPartner, hostPartner)
 			},
 			async sendIceCandidate(ice: RTCIceCandidate) {
-				we.haveIdentity()
+				we.haveReputation()
 				await connection.onIceCandidate.publish(ice)
 			},
 		})),

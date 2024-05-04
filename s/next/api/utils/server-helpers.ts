@@ -6,16 +6,16 @@ import {Connection} from "../../serving/connection.js"
 export class ServerHelpers {
 	constructor(private core: Core, private connection: Connection) {}
 
-	haveIdentity() {
-		const {identity} = this.connection
-		if (!identity) throw new Error("invalid identity for this action")
-		identity.touch()
-		return identity
+	haveReputation() {
+		const {reputation} = this.connection
+		if (!reputation) throw new Error("invalid reputation for this action")
+		reputation.touch()
+		return reputation
 	}
 
 	areSessionHost(session: Session) {
-		const identity = this.haveIdentity()
-		if (session.host === identity.id) return identity
+		const reputation = this.haveReputation()
+		if (session.host === reputation.id) return reputation
 		else throw new Error("not host of session")
 	}
 }
