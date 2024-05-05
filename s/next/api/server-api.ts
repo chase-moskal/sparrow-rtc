@@ -29,7 +29,7 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 			},
 
 			async createReputation() {
-				return core.reputations.create().claim
+				return core.reputations.create(auth.connection).claim
 			},
 
 			async claimReputation(claim: ReputationClaim) {
@@ -76,8 +76,8 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 
 			async querySessions() {
 				const limit = 100
-				let count = 1
 				const sessions: SessionInfo[] = []
+				let count = 1
 				for (const session of core.sessions.all()) {
 					sessions.push(session.asPublicInfo())
 					if (count++ > limit)
@@ -108,6 +108,7 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 			async sendIceCandidate(ice: RTCIceCandidate) {
 				await auth.connection.onIceCandidate.publish(ice)
 			},
+
 		})),
 	})
 

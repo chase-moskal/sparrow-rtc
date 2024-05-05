@@ -44,9 +44,10 @@ export class Core {
 		get: (id: Id) => this.#reputations.get(id),
 		require: (id: Id) => this.#reputations.require(id),
 
-		create: () => {
+		create: (connection: Connection) => {
 			const reputation = new Reputation()
 			this.#reputations.set(reputation.id, reputation)
+			connection.reputation = reputation
 			return reputation
 		},
 
