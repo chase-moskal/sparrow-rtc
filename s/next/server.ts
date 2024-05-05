@@ -8,7 +8,7 @@ import {deathWithDignity} from "../toolbox/death-with-dignity.js"
 deathWithDignity()
 
 const core = new Core()
-setInterval(() => core.cullExpiredReputations(), 60_000)
+setInterval(() => core.reputations.cull(), 60_000)
 
 webSocketServer({
 	timeout: 60_000,
@@ -19,6 +19,6 @@ webSocketServer({
 		? parseInt(process.argv[2])
 		: 8192,
 
-	acceptConnection: socket => core.acceptConnection(socket).handling,
+	acceptConnection: socket => core.connections.accept(socket).handling,
 })
 

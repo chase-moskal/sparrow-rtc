@@ -12,7 +12,7 @@ export function setup() {
 		connect() {
 			const browser = mockBrowser()
 			const socket = mockSocketConnection(browser)
-			const {handling} = core.acceptConnection(socket)
+			const {handling} = core.connections.accept(socket)
 			return {
 				close: () => handling.handleConnectionClosed(),
 				serverRemote: (

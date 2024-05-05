@@ -1,5 +1,4 @@
 
-import {Connection} from "./connection.js"
 import {hex_id} from "../../../toolbox/id.js"
 import {ReputationClaim} from "../../types.js"
 
@@ -8,7 +7,6 @@ export class Reputation {
 	readonly secret = hex_id()
 
 	lastContact = Date.now()
-	connection: Connection | null = null
 
 	readonly claim: ReputationClaim = {
 		id: this.id,

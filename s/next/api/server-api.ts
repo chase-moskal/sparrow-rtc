@@ -2,72 +2,65 @@
 import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
-import {Reputation} from "../core/parts/reputation.js"
 import {Connection} from "../core/parts/connection.js"
-import {ServerHelpers} from "./utils/server-helpers.js"
 import {Id, ReputationClaim, Partner, SessionInfo} from "../types.js"
 import {negotiate_rtc_connection} from "../negotiation/negotiate_rtc_connection.js"
 
-export type ServerAuth = {
-	connection: Connection
-	we: ServerHelpers
-}
-
 export function makeServerApi(core: Core, getConnection: () => Connection) {
 
-	const policy = async(): Promise<ServerAuth> => {
+	const unknownUserPolicy = async() => {
 		const connection = getConnection()
-		const we = new ServerHelpers(core, connection)
-		return {connection, we}
+		return {connection, core}
 	}
 
-	const service = <M extends Renraku.Methods>(
-			fn: (auth: ServerAuth) => M
-		) => Renraku
-		.service()
-		.policy(policy)
-		.expose(fn)
+	const reputableUserPolicy = async() => {
+		const auth = await unknownUserPolicy()
+		const {reputation} = auth.connection
+		if (!reputation) throw new Error("invalid reputation for this action")
+		reputation.touch()
+		return {...auth, reputation}
+	}
 
 	const v1 = Renraku.api({
-		basic: service(({connection, we}) => ({
+		basic: Renraku.service().policy(unknownUserPolicy).expose(auth => ({
+
 			async keepAlive() {
 				return Date.now()
 			},
 
 			async createReputation() {
-				const reputation = new Reputation()
-				core.reputations.set(reputation.id, reputation)
-				return reputation.claim
+				return core.reputations.create().claim
 			},
 
 			async claimReputation(claim: ReputationClaim) {
 				const reputation = core.reputations.get(claim.id)
 				if (reputation && reputation.secret === claim.secret) {
-					connection.reputation = reputation
+					auth.connection.reputation = reputation
 					return true
 				}
 				else return false
 			},
 
 		})),
+		hosting: Renraku.service().policy(reputableUserPolicy).expose(auth => ({
 
-		hosting: service(({connection, we}) => ({
 			async startSession(o: {
 					label: string
 					maxClients: number
 					discoverable: boolean
 				}) {
-				const reputation = we.haveReputation()
-				const session = core.createSession({hostReputationId: reputation.id})
+				const {reputation} = auth
+				const session = core.sessions.create(reputation)
 				session.label = o.label
 				session.discoverable = o.discoverable
 				return session.asPrivateDataForHost()
 			},
 
 			async terminateSession(o: {sessionId: Id}) {
+				const {reputation} = auth
 				const session = core.sessions.require(o.sessionId)
-				if (we.areSessionHost(session))
-					core.sessions.delete(session.id)
+				if (session.host === reputation)
+					core.sessions.terminate(session)
 			},
 
 			async transferSessionOwnership(o: {
@@ -77,32 +70,33 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 				}) {
 				throw new Error("TODO coming soon")
 			},
-		})),
 
-		discovery: service(({connection, we}) => ({
+		})),
+		discovery: Renraku.service().policy(reputableUserPolicy).expose(auth => ({
+
 			async querySessions() {
 				const limit = 100
 				let count = 1
 				const sessions: SessionInfo[] = []
-				for (const session of core.sessions.values()) {
+				for (const session of core.sessions.all()) {
 					sessions.push(session.asPublicInfo())
 					if (count++ > limit)
 						break
 				}
 				return sessions
 			},
-		})),
 
-		peering: service(({connection, we}) => ({
+		})),
+		peering: Renraku.service().policy(reputableUserPolicy).expose(auth => ({
+
 			async joinSession(o: {sessionId: Id}) {
-				we.haveReputation()
+				const {connection} = auth
+				const session = core.sessions.require(o.sessionId)
 				const clientPartner: Partner = {
 					...connection.browser.v1.partner,
 					onIceCandidate: fn => connection.onIceCandidate.subscribe(fn),
 				}
-				const hostReputationId = core.hosting.getHost(o.sessionId)
-				const hostReputation = core.reputations.require(o.sessionId)
-				const hostConnection = hostReputation.connection
+				const hostConnection = core.connections.getByReputation(session.host)
 				if (!hostConnection) return false
 				const hostPartner: Partner = {
 					...hostConnection.browser.v1.partner,
@@ -110,9 +104,9 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 				}
 				await negotiate_rtc_connection(clientPartner, hostPartner)
 			},
+
 			async sendIceCandidate(ice: RTCIceCandidate) {
-				we.haveReputation()
-				await connection.onIceCandidate.publish(ice)
+				await auth.connection.onIceCandidate.publish(ice)
 			},
 		})),
 	})

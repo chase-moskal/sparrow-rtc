@@ -1,16 +1,21 @@
 
+import {Reputation} from "./reputation.js"
 import {hex_id} from "../../../toolbox/id.js"
 import {Id, SessionInfo} from "../../types.js"
 
 export class Session {
+
+	// public
 	readonly id = hex_id()
-	readonly secret = hex_id()
 	readonly timeCreated = Date.now()
 	readonly clients = new Set<Id>()
-
 	label = "session"
 	discoverable = false
-	maxClients: number = 16
+	maxClients = 16
+
+	// private
+	readonly secret = hex_id()
+	constructor(public host: Reputation) {}
 
 	asPublicInfo(): SessionInfo {
 		return {
@@ -23,7 +28,11 @@ export class Session {
 	}
 
 	asPrivateDataForHost() {
-		return {...this}
+		return {
+			...this.asPublicInfo(),
+			secret: this.secret,
+			hostId: this.host.id,
+		}
 	}
 }
 
