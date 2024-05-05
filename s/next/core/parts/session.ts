@@ -1,6 +1,6 @@
 
-import {Id, SessionInfo} from "../types.js"
-import {hex_id} from "../../toolbox/id.js"
+import {hex_id} from "../../../toolbox/id.js"
+import {Id, SessionInfo} from "../../types.js"
 
 export class Session {
 	readonly id = hex_id()
@@ -10,17 +10,7 @@ export class Session {
 
 	label = "session"
 	discoverable = false
-
-	host: Id
-	maxClients: number
-
-	constructor(o: {
-			host: Id,
-			maxClients: number
-		}) {
-		this.host = o.host
-		this.maxClients = o.maxClients
-	}
+	maxClients: number = 16
 
 	asPublicInfo(): SessionInfo {
 		return {
@@ -32,7 +22,7 @@ export class Session {
 		}
 	}
 
-	asPrivateData() {
+	asPrivateDataForHost() {
 		return {...this}
 	}
 }

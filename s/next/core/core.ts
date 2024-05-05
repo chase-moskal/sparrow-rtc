@@ -1,41 +1,36 @@
 
 import * as Renraku from "renraku"
 
-import {IdMap} from "./id-map.js"
-import {Session} from "./session.js"
+import {IdMap} from "./parts/id-map.js"
+import {Session} from "./parts/session.js"
 import {BrowserApi, Id} from "../types.js"
+import {Hosting} from "./parts/hosting.js"
+import {Reputation} from "./parts/reputation.js"
+import {Connection} from "./parts/connection.js"
 import {browserMetas} from "../api/utils/metas.js"
 import {makeServerApi} from "../api/server-api.js"
-import {Reputation} from "../serving/reputation.js"
-import {Connection} from "../serving/connection.js"
 
 export class Core {
+	readonly connections = new IdMap<Connection>()
 	readonly reputations = new IdMap<Reputation>()
 	readonly sessions = new IdMap<Session>()
-	readonly connections = new IdMap<Connection>()
+	readonly hosting = new Hosting()
 
-	readonly sessionAndHost = new Map<Id, Id>()
-	readonly hostAndSession = new Map<Id, Id>()
-
-	setHost(sessionId: Id, reputationId: Id) {
-		this.sessionAndHost.set(sessionId, reputationId)
-		this.hostAndSession.set(reputationId, sessionId)
-	}
-
-	isHosting(sessionId: Id, reputationId: Id) {
-		return this.sessionAndHost.get(sessionId) === reputationId
-	}
-
-	getSessionHost(sessionId: Id) {
-		const reputationId = this.sessionAndHost.get(sessionId)!
-		return this.reputations.require(reputationId)
+	createSession({hostReputationId}: {hostReputationId: Id}) {
+		const session = new Session()
+		this.sessions.add(session)
+		this.hosting.setHost({
+			sessionId: session.id,
+			reputationId: hostReputationId,
+		})
+		return session
 	}
 
 	terminateSession(session: Session) {
 		this.sessions.delete(session.id)
 		for (const connectionId of session.clients) {
 			const connection = this.connections.require(connectionId)
-			connection.browser.v1
+			connection.socket.controls.close()
 		}
 	}
 
@@ -70,8 +65,14 @@ export class Core {
 				deathrow.push(reputation)
 		}
 
-		for (const reputation of deathrow)
+		for (const reputation of deathrow) {
 			this.reputations.delete(reputation.id)
+			const sessionId = this.hosting.getSession(reputation.id)
+			if (sessionId) {
+				const session = this.sessions.require(sessionId)
+				this.terminateSession(session)
+			}
+		}
 	}
 }
 

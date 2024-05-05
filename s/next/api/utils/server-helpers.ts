@@ -1,7 +1,7 @@
 
 import {Core} from "../../core/core.js"
-import {Session} from "../../core/session.js"
-import {Connection} from "../../serving/connection.js"
+import {Session} from "../../core/parts/session.js"
+import {Connection} from "../../core/parts/connection.js"
 
 export class ServerHelpers {
 	constructor(private core: Core, private connection: Connection) {}
@@ -15,7 +15,11 @@ export class ServerHelpers {
 
 	areSessionHost(session: Session) {
 		const reputation = this.haveReputation()
-		if (session.host === reputation.id) return reputation
+		const isHost = this.core.hosting.isHost({
+			sessionId: session.id,
+			reputationId: reputation.id,
+		})
+		if (isHost) return reputation
 		else throw new Error("not host of session")
 	}
 }

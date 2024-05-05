@@ -2,9 +2,8 @@
 import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
-import {Session} from "../core/session.js"
-import {Reputation} from "../serving/reputation.js"
-import {Connection} from "../serving/connection.js"
+import {Reputation} from "../core/parts/reputation.js"
+import {Connection} from "../core/parts/connection.js"
 import {ServerHelpers} from "./utils/server-helpers.js"
 import {Id, ReputationClaim, Partner, SessionInfo} from "../types.js"
 import {negotiate_rtc_connection} from "../negotiation/negotiate_rtc_connection.js"
@@ -59,14 +58,10 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 					discoverable: boolean
 				}) {
 				const reputation = we.haveReputation()
-				const session = new Session({
-					host: reputation.id,
-					maxClients: o.maxClients,
-				})
+				const session = core.createSession({hostReputationId: reputation.id})
 				session.label = o.label
 				session.discoverable = o.discoverable
-				core.sessions.add(session)
-				return {...session}
+				return session.asPrivateDataForHost()
 			},
 
 			async terminateSession(o: {sessionId: Id}) {
@@ -105,7 +100,8 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 					...connection.browser.v1.partner,
 					onIceCandidate: fn => connection.onIceCandidate.subscribe(fn),
 				}
-				const hostReputation = core.getSessionHost(o.sessionId)
+				const hostReputationId = core.hosting.getHost(o.sessionId)
+				const hostReputation = core.reputations.require(o.sessionId)
 				const hostConnection = hostReputation.connection
 				if (!hostConnection) return false
 				const hostPartner: Partner = {

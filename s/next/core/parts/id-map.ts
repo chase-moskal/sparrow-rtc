@@ -1,5 +1,5 @@
 
-import {Id} from "../types.js"
+import {Id} from "../../types.js"
 
 export class IdMap<O extends {id: Id}> extends Map<Id, O> {
 	add(o: O) {
