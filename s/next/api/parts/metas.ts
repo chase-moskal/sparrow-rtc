@@ -1,6 +1,6 @@
 
 import * as Renraku from "renraku"
-import {BrowserApi, ServerApi} from "../../types.js"
+import {BrowserApi, ReputationClaim, ServerApi} from "../../types.js"
 
 export const browserMetas = Renraku.metas<BrowserApi>({
 	v1: {
@@ -8,12 +8,12 @@ export const browserMetas = Renraku.metas<BrowserApi>({
 	},
 })
 
-export const serverMetas = Renraku.metas<ServerApi>({
+export const serverMetas = (getMeta: () => Promise<{claim: ReputationClaim}>) => Renraku.metas<ServerApi>({
 	v1: {
 		basic: async() => {},
-		hosting: async() => {},
-		peering: async() => {},
-		discovery: async() => {},
+		hosting: getMeta,
+		peering: getMeta,
+		discovery: getMeta,
 	},
 })
 

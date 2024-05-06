@@ -3,11 +3,11 @@ import * as Renraku from "renraku"
 
 import {IdMap} from "./parts/id-map.js"
 import {Session} from "./parts/session.js"
-import {BrowserApi, Id} from "../types.js"
 import {Reputation} from "./parts/reputation.js"
 import {Connection} from "./parts/connection.js"
 import {browserMetas} from "../api/parts/metas.js"
 import {makeServerApi} from "../api/server-api.js"
+import {BrowserApi, Id, ReputationClaim} from "../types.js"
 
 export class Core {
 	#reputations = new IdMap<Reputation>()
@@ -15,14 +15,6 @@ export class Core {
 	#sessions = new IdMap<Session>()
 
 	connections = {
-		getByReputation: (reputation: Reputation) => {
-			for (const connection of this.#connections.values()) {
-				if (connection.reputation === reputation)
-					return connection
-			}
-			return null
-		},
-
 		accept: (
 				socket: Renraku.SocketConnection,
 				browser = socket.prepareClientApi<BrowserApi>(browserMetas),
@@ -44,10 +36,17 @@ export class Core {
 		get: (id: Id) => this.#reputations.get(id),
 		require: (id: Id) => this.#reputations.require(id),
 
-		create: (connection: Connection) => {
+		claim: (connection: Connection, claim: ReputationClaim | null) => {
+			if (claim) {
+				const reputation = this.reputations.get(claim.id)
+				if (reputation && reputation.secret === claim.secret) {
+					reputation.connection = connection
+					return reputation
+				}
+			}
 			const reputation = new Reputation()
 			this.#reputations.set(reputation.id, reputation)
-			connection.reputation = reputation
+			reputation.connection = connection
 			return reputation
 		},
 

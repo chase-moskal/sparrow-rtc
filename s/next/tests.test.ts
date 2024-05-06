@@ -6,8 +6,8 @@ export default <Suite>{
 	"scenarios": {
 		async "user creates an reputation"() {
 			const server = setup()
-			const user = server.connect()
-			const claim = await user.serverRemote.v1.basic.createReputation()
+			const user = await server.connect()
+			const claim = await user.server.v1.basic.claimReputation(null)
 			expect(claim).ok()
 			expect(claim.id).ok()
 			expect(claim.secret).ok()
@@ -15,19 +15,19 @@ export default <Suite>{
 
 		async "user can disconnect and reclaim reputation"() {
 			const server = setup()
-			const user1 = server.connect()
-			const claim = await user1.serverRemote.v1.basic.createReputation()
+			const user1 = await server.connect()
+			const claim = await user1.server.v1.basic.claimReputation(null)
 			user1.close()
-			const user2 = server.connect()
-			const result = await user2.serverRemote.v1.basic.claimReputation(claim)
+			const user2 = await server.connect()
+			const result = await user2.server.v1.basic.claimReputation(claim)
 			expect(result).ok()
 		},
 
 		async "user can create a session and become a host"() {
 			const server = setup()
-			const user1 = server.connect()
-			const claim = await user1.serverRemote.v1.basic.createReputation()
-			const sessionData = await user1.serverRemote.v1.hosting.startSession({
+			const user1 = await server.connect()
+			const claim = await user1.server.v1.basic.claimReputation(null)
+			const sessionData = await user1.server.v1.hosting.startSession({
 				label: "test session",
 				maxClients: 12,
 				discoverable: false,

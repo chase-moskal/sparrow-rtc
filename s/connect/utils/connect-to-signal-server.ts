@@ -36,7 +36,7 @@ export async function connectToSignalServer(options: ConnectOptions) {
 	const {remote, close} = await webSocketClient<ReturnType<typeof makeSignalServerApi>>({
 		link: options.url,
 		timeout: 10_000,
-		clientApi: makeSignalBrowserApi(
+		clientApi: () => makeSignalBrowserApi(
 			(<HostOptions>options).host?
 				{host: (<HostOptions>options).host, client: duds.client}:
 				{client: (<ClientOptions>options).client, host: duds.host}
@@ -44,7 +44,7 @@ export async function connectToSignalServer(options: ConnectOptions) {
 		handleConnectionClosed() {
 			options.onConnectionLost()
 		},
-		metaMap: {
+		serverMetas: {
 			hosting: async() => {},
 			discovery: async() => {},
 			connecting: async() => {},

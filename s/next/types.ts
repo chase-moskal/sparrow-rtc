@@ -1,5 +1,7 @@
 
 import * as Renraku from "renraku"
+
+import {Pubsub} from "../toolbox/pubsub.js"
 import {makeServerApi} from "./api/server-api.js"
 import {makeBrowserApi} from "./api/browser-api.js"
 
@@ -22,9 +24,15 @@ export type SessionInfo = {
 	discoverable: boolean
 }
 
+export type SessionData = {
+	secret: Id
+	hostId: Id
+} & SessionInfo
+
 ///////////////////////////////////
 
 export type Partner = {
+	reputationId: Id
 	onIceCandidate(fn: (ice: RTCIceCandidate) => void): (() => void)
 } & BrowserRemote["v1"]["partner"]
 
@@ -42,4 +50,17 @@ export type PeerReport = {
 }
 
 export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle"
+
+///////////////////////////////////
+
+export type StartSessionOptions = {
+	label: string
+	maxClients: number
+	discoverable: boolean
+}
+
+export type SparrowPubs = {
+	onChannelsReady: Pubsub<[RTCPeerConnection, unknown]>
+	onConnectionStatus: Pubsub<[ConnectionStatus]>
+}
 

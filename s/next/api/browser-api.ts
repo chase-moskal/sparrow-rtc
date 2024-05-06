@@ -6,7 +6,7 @@ import {ConnectionStatus, EstablishChannels, ServerRemote} from "../types.js"
 export function makeBrowserApi<Channels>({
 		server: {v1: {peering}},
 		rtcConfig,
-		onReady,
+		onChannelsReady: onReady,
 		onConnectionStatus,
 		establishChannels,
 	}: {
@@ -14,7 +14,7 @@ export function makeBrowserApi<Channels>({
 		rtcConfig: RTCConfiguration
 		establishChannels: EstablishChannels<Channels>
 		onConnectionStatus: (status: ConnectionStatus) => void
-		onReady: (peer: RTCPeerConnection, channels: Channels) => void
+		onChannelsReady: (peer: RTCPeerConnection, channels: Channels) => void
 	}) {
 
 	let peerUnit: PeerUnit | null = null

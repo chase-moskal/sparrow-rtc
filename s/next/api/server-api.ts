@@ -3,52 +3,35 @@ import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
 import {Connection} from "../core/parts/connection.js"
-import {Id, ReputationClaim, Partner, SessionInfo} from "../types.js"
-import {negotiate_rtc_connection} from "../negotiation/negotiate_rtc_connection.js"
+import {negotiate_rtc_connection} from "./parts/negotiate_rtc_connection.js"
+import {Id, ReputationClaim, Partner, SessionInfo, StartSessionOptions} from "../types.js"
 
 export function makeServerApi(core: Core, getConnection: () => Connection) {
 
-	const unknownUserPolicy = async() => {
-		const connection = getConnection()
-		return {connection, core}
-	}
+	const anonPolicy = async() => ({connection: getConnection()})
 
-	const reputableUserPolicy = async() => {
-		const auth = await unknownUserPolicy()
-		const {reputation} = auth.connection
-		if (!reputation) throw new Error("invalid reputation for this action")
+	const reputablePolicy = async({claim}: {claim: ReputationClaim}) => {
+		const connection = getConnection()
+		const reputation = core.reputations.claim(connection, claim)
 		reputation.touch()
-		return {...auth, reputation}
+		return {connection, reputation}
 	}
 
 	const v1 = Renraku.api({
-		basic: Renraku.service().policy(unknownUserPolicy).expose(auth => ({
+		basic: Renraku.service().policy(anonPolicy).expose(({connection}) => ({
+
+			async claimReputation(claim: ReputationClaim | null) {
+				return core.reputations.claim(connection, claim)
+			},
 
 			async keepAlive() {
 				return Date.now()
 			},
 
-			async createReputation() {
-				return core.reputations.create(auth.connection).claim
-			},
-
-			async claimReputation(claim: ReputationClaim) {
-				const reputation = core.reputations.get(claim.id)
-				if (reputation && reputation.secret === claim.secret) {
-					auth.connection.reputation = reputation
-					return true
-				}
-				else return false
-			},
-
 		})),
-		hosting: Renraku.service().policy(reputableUserPolicy).expose(auth => ({
+		hosting: Renraku.service().policy(reputablePolicy).expose(auth => ({
 
-			async startSession(o: {
-					label: string
-					maxClients: number
-					discoverable: boolean
-				}) {
+			async startSession(o: StartSessionOptions) {
 				const {reputation} = auth
 				const session = core.sessions.create(reputation)
 				session.label = o.label
@@ -63,16 +46,16 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 					core.sessions.terminate(session)
 			},
 
-			async transferSessionOwnership(o: {
-					sessionId: Id
-					sessionSecret: Id
-					newOwnerId: Id
-				}) {
-				throw new Error("TODO coming soon")
-			},
+			// async transferSessionOwnership(o: {
+			// 		sessionId: Id
+			// 		sessionSecret: Id
+			// 		newOwnerId: Id
+			// 	}) {
+			// 	throw new Error("TODO coming soon")
+			// },
 
 		})),
-		discovery: Renraku.service().policy(reputableUserPolicy).expose(auth => ({
+		discovery: Renraku.service().policy(reputablePolicy).expose(_auth => ({
 
 			async querySessions() {
 				const limit = 100
@@ -87,19 +70,21 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 			},
 
 		})),
-		peering: Renraku.service().policy(reputableUserPolicy).expose(auth => ({
+		peering: Renraku.service().policy(reputablePolicy).expose(auth => ({
 
 			async joinSession(o: {sessionId: Id}) {
 				const {connection} = auth
 				const session = core.sessions.require(o.sessionId)
 				const clientPartner: Partner = {
 					...connection.browser.v1.partner,
+					reputationId: auth.reputation.id,
 					onIceCandidate: fn => connection.onIceCandidate.subscribe(fn),
 				}
-				const hostConnection = core.connections.getByReputation(session.host)
+				const hostConnection = session.host.connection
 				if (!hostConnection) return false
 				const hostPartner: Partner = {
 					...hostConnection.browser.v1.partner,
+					reputationId: session.host.id,
 					onIceCandidate: fn => connection.onIceCandidate.subscribe(fn),
 				}
 				await negotiate_rtc_connection(clientPartner, hostPartner)

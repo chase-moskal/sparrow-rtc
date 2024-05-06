@@ -3,23 +3,29 @@ import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
 import {serverMetas} from "../api/parts/metas.js"
-import {BrowserRemote, ServerRemote} from "../types.js"
+import {BrowserRemote, ReputationClaim, ServerRemote} from "../types.js"
 
 export function setup() {
 	const core = new Core()
 	return {
 		core,
-		connect() {
+		async connect() {
+			let claim: ReputationClaim | null = null
 			const browser = mockBrowser()
 			const socket = mockSocketConnection(browser)
 			const {handling} = core.connections.accept(socket)
+			const server = (
+				Renraku.mock()
+					.forApi(handling.api)
+					.withMetas(serverMetas(async() => {
+						if (!claim) throw new Error("no claim")
+						return {claim}
+					}))
+			) as ServerRemote
+			claim = await server.v1.basic.claimReputation(claim)
 			return {
+				server,
 				close: () => handling.handleConnectionClosed(),
-				serverRemote: (
-					Renraku.mock()
-						.forApi(handling.api)
-						.withMetaMap(serverMetas)
-				) as ServerRemote,
 			}
 		},
 	}

@@ -1,7 +1,7 @@
 
 import {Reputation} from "./reputation.js"
 import {hex_id} from "../../../toolbox/id.js"
-import {Id, SessionInfo} from "../../types.js"
+import {Id, SessionData, SessionInfo} from "../../types.js"
 
 export class Session {
 
@@ -23,11 +23,11 @@ export class Session {
 			label: this.label,
 			timeCreated: this.timeCreated,
 			clientCount: this.clients.size,
-			discoverable: this.discoverable
+			discoverable: this.discoverable,
 		}
 	}
 
-	asPrivateDataForHost() {
+	asPrivateDataForHost(): SessionData {
 		return {
 			...this.asPublicInfo(),
 			secret: this.secret,
