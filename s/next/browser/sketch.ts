@@ -1,12 +1,12 @@
 
 import * as Renraku from "renraku"
 
-import {pubsub} from "../../toolbox/pubsub.js"
+import {Pubsub, pubsub} from "../../toolbox/pubsub.js"
 import {serverMetas} from "../api/parts/metas.js"
 import {makeBrowserApi} from "../api/browser-api.js"
 import {standardRtcConfig} from "./standard-rtc-config.js"
 import {standardDataChannels} from "../api/parts/establish_channels.js"
-import {EstablishChannels, ReputationClaim, ServerRemote, SparrowPubs} from "../types.js"
+import {ConnectionStatus, EstablishChannels, ReputationClaim, ServerRemote} from "../types.js"
 
 export class Sparrow<Channels> {
 	static standardRtcConfig = standardRtcConfig
@@ -20,10 +20,8 @@ export class Sparrow<Channels> {
 	get isConnected() { return !!this.#connection }
 
 	onConnectionChange = pubsub<[]>()
-	peerEvents: SparrowPubs = {
-		onChannelsReady: pubsub(),
-		onConnectionStatus: pubsub(),
-	}
+	onChannelsReady: Pubsub<[RTCPeerConnection, unknown]> = pubsub()
+	onConnectionStatus: Pubsub<[ConnectionStatus]> = pubsub()
 
 	constructor(o: {
 			url: string
@@ -55,8 +53,8 @@ export class Sparrow<Channels> {
 				server: serverRemote,
 				rtcConfig: standardRtcConfig,
 				establishChannels: this.#establishChannels,
-				onConnectionStatus: status => this.peerEvents.onConnectionStatus.publish(status),
-				onChannelsReady: (peer, channels) => this.peerEvents.onChannelsReady.publish(peer, channels),
+				onConnectionStatus: status => this.onConnectionStatus.publish(status),
+				onChannelsReady: (peer, channels) => this.onChannelsReady.publish(peer, channels),
 			}),
 		})
 
