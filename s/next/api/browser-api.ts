@@ -1,24 +1,27 @@
 
 import * as Renraku from "renraku"
-import {make_peer_group} from "../negotiation/parts/make_peer_group.js"
-import {ConnectionStatus, PeerGroup, ServerRemote} from "../types.js"
+import {PeerUnit, make_peer_unit} from "./parts/make_peer_unit.js"
+import {ConnectionStatus, EstablishChannels, ServerRemote} from "../types.js"
 
-export function makeBrowserApi({
+export function makeBrowserApi<Channels>({
 		server: {v1: {peering}},
 		rtcConfig,
-		onConnected,
-		onConnectionChange,
+		onReady,
+		onConnectionStatus,
+		establishChannels,
 	}: {
 		server: ServerRemote
 		rtcConfig: RTCConfiguration
-		onConnected: (group: PeerGroup) => {}
-		onConnectionChange: (status: ConnectionStatus) => {}
+		establishChannels: EstablishChannels<Channels>
+		onConnectionStatus: (status: ConnectionStatus) => void
+		onReady: (peer: RTCPeerConnection, channels: Channels) => void
 	}) {
 
-	let peerGroup: PeerGroup
+	let peerUnit: PeerUnit | null = null
+	let ready: Promise<void> = Promise.resolve()
 
-	function requirement() {
-		if (peerGroup) return peerGroup
+	function requirePeerUnit() {
+		if (peerUnit) return peerUnit
 		else throw new Error("invalid, peer connection not yet started")
 	}
 
@@ -31,27 +34,26 @@ export function makeBrowserApi({
 		 */
 		partner: Renraku.serviette(() => ({
 			async startPeerConnection() {
-				onConnectionChange("start")
-				if (peerGroup) peerGroup.peer.close()
-				peerGroup = make_peer_group(peering, rtcConfig)
+				onConnectionStatus("start")
+				if (peerUnit) peerUnit.peer.close()
+				peerUnit = make_peer_unit({peering, rtcConfig})
 			},
 
 			async produceOffer(): Promise<any> {
-				onConnectionChange("offer")
-				const {peer} = requirement()
-				const channel = peer.createDataChannel("data", {
-					ordered: false,
-					maxRetransmits: undefined,
-				})
-				channel.binaryType = "arraybuffer"
+				onConnectionStatus("offer")
+				const {peer} = requirePeerUnit()
+				ready = establishChannels.offering(peer)
+					.then(channels => onReady(peer, channels))
 				const offer = await peer.createOffer()
 				await peer.setLocalDescription(offer)
 				return offer
 			},
 
 			async produceAnswer(offer: RTCSessionDescription): Promise<any> {
-				onConnectionChange("answer")
-				const {peer} = requirement()
+				onConnectionStatus("answer")
+				const {peer} = requirePeerUnit()
+				ready = establishChannels.answering(peer)
+					.then(channels => onReady(peer, channels))
 				await peer.setRemoteDescription(offer)
 				const answer = await peer.createAnswer()
 				await peer.setLocalDescription(answer)
@@ -59,21 +61,23 @@ export function makeBrowserApi({
 			},
 
 			async acceptAnswer(answer: RTCSessionDescription): Promise<void> {
-				onConnectionChange("accept")
-				const {peer} = requirement()
+				onConnectionStatus("accept")
+				const {peer} = requirePeerUnit()
 				await peer.setRemoteDescription(answer)
 			},
 
-			async waitUntilReady() {
-				onConnectionChange("trickle")
-				const {dataChannel} = requirement()
-				return dataChannel.then(() => {})
-			},
-
 			async acceptIceCandidate(ice: RTCIceCandidate): Promise<void> {
-				const {peer} = requirement()
+				const {peer} = requirePeerUnit()
 				await peer.addIceCandidate(ice)
 			},
+
+			async waitUntilReady() {
+				onConnectionStatus("trickle")
+				const {ice, connection} = requirePeerUnit()
+				return Promise.all([ready, ice, connection])
+					.then(() => {})
+			},
+
 		})),
 	})
 

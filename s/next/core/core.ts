@@ -6,7 +6,7 @@ import {Session} from "./parts/session.js"
 import {BrowserApi, Id} from "../types.js"
 import {Reputation} from "./parts/reputation.js"
 import {Connection} from "./parts/connection.js"
-import {browserMetas} from "../api/utils/metas.js"
+import {browserMetas} from "../api/parts/metas.js"
 import {makeServerApi} from "../api/server-api.js"
 
 export class Core {

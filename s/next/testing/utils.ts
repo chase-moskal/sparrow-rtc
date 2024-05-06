@@ -2,7 +2,7 @@
 import * as Renraku from "renraku"
 
 import {Core} from "../core/core.js"
-import {serverMetas} from "../api/utils/metas.js"
+import {serverMetas} from "../api/parts/metas.js"
 import {BrowserRemote, ServerRemote} from "../types.js"
 
 export function setup() {

@@ -28,19 +28,17 @@ export type Partner = {
 	onIceCandidate(fn: (ice: RTCIceCandidate) => void): (() => void)
 } & BrowserRemote["v1"]["partner"]
 
+export type EstablishChannels<Channels> = {
+	offering: (peer: RTCPeerConnection) => Promise<Channels>
+	answering: (peer: RTCPeerConnection) => Promise<Channels>
+}
+
 export type IceReport = {good: number, bad: number}
 
 export type PeerReport = {
 	ice: IceReport
 	dataChannel: RTCDataChannel
 	connection: RTCPeerConnection
-}
-
-export type PeerGroup = {
-	peer: RTCPeerConnection
-	ice: Promise<IceReport>
-	dataChannel: Promise<RTCDataChannel>
-	connection: Promise<RTCPeerConnection>
 }
 
 export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle"
