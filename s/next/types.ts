@@ -1,7 +1,6 @@
 
 import * as Renraku from "renraku"
 
-import {Pubsub} from "../toolbox/pubsub.js"
 import {makeServerApi} from "./api/server-api.js"
 import {makeBrowserApi} from "./api/browser-api.js"
 
@@ -57,10 +56,5 @@ export type StartSessionOptions = {
 	label: string
 	maxClients: number
 	discoverable: boolean
-}
-
-export type SparrowPubs = {
-	onChannelsReady: Pubsub<[RTCPeerConnection, unknown]>
-	onConnectionStatus: Pubsub<[ConnectionStatus]>
 }
 
