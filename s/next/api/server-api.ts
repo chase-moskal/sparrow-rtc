@@ -21,7 +21,7 @@ export function makeServerApi(core: Core, getConnection: () => Connection) {
 		basic: Renraku.service().policy(anonPolicy).expose(({connection}) => ({
 
 			async claimReputation(claim: ReputationClaim | null) {
-				return core.reputations.claim(connection, claim)
+				return core.reputations.claim(connection, claim).claim
 			},
 
 			async keepAlive() {

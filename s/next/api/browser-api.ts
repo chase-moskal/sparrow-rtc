@@ -33,6 +33,7 @@ export function makeBrowserApi<Channels>({
 		 * the signal server acts like a "traffic cop" (with the whistle), directing each peer to coordinate a successful connection.
 		 */
 		partner: Renraku.serviette(() => ({
+
 			async startPeerConnection() {
 				onConnectionStatus("start")
 				if (peerUnit) peerUnit.peer.close()

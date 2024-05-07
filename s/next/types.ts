@@ -13,6 +13,11 @@ export type ServerRemote = Renraku.Remote<ServerApi>
 export type BrowserApi = ReturnType<typeof makeBrowserApi>
 export type BrowserRemote = Renraku.Remote<BrowserApi>
 
+export type SocketClient = {
+	remote: ServerRemote
+	close: () => void
+}
+
 ///////////////////////////////////
 
 export type SessionInfo = {
