@@ -18,6 +18,8 @@ export type SocketClient = {
 	close: () => void
 }
 
+export type Clientizer = (claim: ReputationClaim | null) => Promise<SocketClient>
+
 ///////////////////////////////////
 
 export type SessionInfo = {
