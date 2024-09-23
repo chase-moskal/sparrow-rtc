@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"rootDir": "s",
 		"outDir": "x",
-		"target": "es2018",
+		"target": "es2021",
 		"lib": ["esnext", "dom"],
 		"module": "esnext",
 		"moduleResolution": "node",
@@ -17,5 +17,5 @@
 	],
 	"exclude": [
 		"s/**/_*"
-	],
+	]
 }
