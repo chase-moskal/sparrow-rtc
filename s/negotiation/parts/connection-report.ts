@@ -21,7 +21,7 @@ export class ConnectionReport {
 
 	reset() {
 		this.#iceCount = 0
-		this.#status = "init"
+		this.#status = "start"
 		this.onChange(this)
 	}
 }
