@@ -1,7 +1,7 @@
 
 import {PartnerOptions} from "./types.js"
-import {Peerbox} from "./parts/peerbox.js"
 import {concurrent} from "../tools/concurrent.js"
+import {Peerbox} from "./partnerutils/peerbox.js"
 
 export type PartnerApi = ReturnType<typeof makePartnerApi>
 

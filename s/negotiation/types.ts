@@ -1,6 +1,6 @@
 
 import {PartnerApi} from "./partner-api.js"
-import {ConnectionReport} from "./parts/connection-report.js"
+import {ConnectionReport} from "./partnerutils/connection-report.js"
 
 export type PartnerOptions<Channels> = {
 	rtcConfig: RTCConfiguration
