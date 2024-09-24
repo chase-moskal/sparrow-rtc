@@ -16,7 +16,7 @@ export type StandardDataChannels = {
 export const standardDataChannels: EstablishChannels<StandardDataChannels> = ({
 
 	offering: async peer => {
-		function channelize(channel: RTCDataChannel) {
+		function prepareChannel(channel: RTCDataChannel) {
 			channel.binaryType = "arraybuffer"
 			const waiting = openPromise<RTCDataChannel>()
 			const unattach = attachEvents(channel, {
@@ -26,10 +26,10 @@ export const standardDataChannels: EstablishChannels<StandardDataChannels> = ({
 			return waiting.promise.finally(unattach)
 		}
 		return concurrent({
-			reliable: channelize(peer.createDataChannel("reliable", {
+			reliable: prepareChannel(peer.createDataChannel("reliable", {
 				ordered: true,
 			})),
-			unreliable: channelize(peer.createDataChannel("unreliable", {
+			unreliable: prepareChannel(peer.createDataChannel("unreliable", {
 				ordered: true,
 				maxRetransmits: 0,
 			})),

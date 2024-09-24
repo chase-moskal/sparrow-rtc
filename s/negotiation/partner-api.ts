@@ -1,54 +1,49 @@
 
 import {PartnerOptions} from "./types.js"
-import {make_peer_unit, PeerUnit} from "./parts/make_peer_unit.js"
+import {Peerbox} from "./parts/peerbox.js"
+import {concurrent} from "../tools/concurrent.js"
 
 export type PartnerApi = ReturnType<typeof makePartnerApi>
 
 /**
- * this is the service that each browser peer exposes to the signalling server.
- * these are the levers that the signal server can pull to control each peer during the connection process.
- * the signal server acts like a "traffic cop" (with the whistle), directing each peer to coordinate a successful connection.
- * or maybe the signal server is like a puppeteer, and the browser partners are like marionettes..
- * what i'm trying to say is that the server is in control of the situation.
+ * each browser peer exposes these functions to the signalling server.
+ * each exposed function is like a lever that the signalling server can pull to remotely control the browser peer.
+ * thus, the signalling server is really the one calling the shots and driving the webrtc negotiation.
+ * think of the signalling server as a traffic cop (with the whistle) commanding each browser peer throughout the negotation process.
  */
 export function makePartnerApi<Channels>({
 		rtcConfig,
 		establishChannels,
-		ready,
-		status,
+		onReport,
 		sendIceCandidate,
 	}: PartnerOptions<Channels>) {
 
-	let peerUnit: PeerUnit | null = null
-	let readyPromise: Promise<void> = Promise.resolve()
+	let peerbox: Peerbox<Channels> | null = null
 
-	function requirePeerUnit() {
-		if (peerUnit) return peerUnit
-		else throw new Error("invalid, peer connection not yet started")
+	function require() {
+		if (peerbox) return peerbox
+		else throw new Error("no connection started")
 	}
 
 	return {
 		async startPeerConnection() {
-			status("start")
-			if (peerUnit) peerUnit.peer.close()
-			peerUnit = make_peer_unit(sendIceCandidate, rtcConfig)
+			if (peerbox) peerbox.peer.close()
+			peerbox = new Peerbox(rtcConfig, sendIceCandidate, onReport)
 		},
 
 		async produceOffer(): Promise<any> {
-			status("offer")
-			const {peer} = requirePeerUnit()
-			readyPromise = establishChannels.offering(peer)
-				.then(channels => ready(peer, channels))
+			const {peer, channelsWaiting, report} = require()
+			report.status = "offer"
+			channelsWaiting.entangle(establishChannels.offering(peer))
 			const offer = await peer.createOffer()
 			await peer.setLocalDescription(offer)
 			return offer
 		},
 
 		async produceAnswer(offer: RTCSessionDescription): Promise<any> {
-			status("answer")
-			const {peer} = requirePeerUnit()
-			readyPromise = establishChannels.answering(peer)
-				.then(channels => ready(peer, channels))
+			const {peer, channelsWaiting, report} = require()
+			report.status = "answer"
+			channelsWaiting.entangle(establishChannels.answering(peer))
 			await peer.setRemoteDescription(offer)
 			const answer = await peer.createAnswer()
 			await peer.setLocalDescription(answer)
@@ -56,21 +51,30 @@ export function makePartnerApi<Channels>({
 		},
 
 		async acceptAnswer(answer: RTCSessionDescription): Promise<void> {
-			status("accept")
-			const {peer} = requirePeerUnit()
+			const {peer, report} = require()
+			report.status = "accept"
 			await peer.setRemoteDescription(answer)
 		},
 
 		async acceptIceCandidate(ice: RTCIceCandidate): Promise<void> {
-			const {peer} = requirePeerUnit()
+			const {peer} = require()
 			await peer.addIceCandidate(ice)
 		},
 
 		async waitUntilReady() {
-			status("trickle")
-			const {iceReport, connection} = requirePeerUnit()
-			return Promise.all([readyPromise, iceReport, connection])
-				.then(() => {})
+			const {report, channelsWaiting, connectedPromise, iceGatheredPromise} = require()
+			report.status = "trickle"
+			const stuffPromise = concurrent({
+				peer: connectedPromise,
+				channels: channelsWaiting.promise,
+			})
+			const [stuff] = await Promise.all([stuffPromise, iceGatheredPromise])
+			report.status = "connected"
+			return {
+				report,
+				peer: stuff.peer,
+				channels: stuff.channels,
+			}
 		},
 	}
 }
