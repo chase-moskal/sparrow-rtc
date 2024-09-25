@@ -1,7 +1,7 @@
 
 import {PartnerOptions} from "./types.js"
-import {concurrent} from "../tools/concurrent.js"
 import {Peerbox} from "./partnerutils/peerbox.js"
+import {concurrent} from "../tools/concurrent.js"
 
 export type PartnerApi = ReturnType<typeof makePartnerApi>
 
@@ -12,10 +12,10 @@ export type PartnerApi = ReturnType<typeof makePartnerApi>
  * think of the signalling server as a traffic cop (with the whistle) commanding each browser peer throughout the negotation process.
  */
 export function makePartnerApi<Channels>({
+		signalingApi,
 		rtcConfig,
 		establishChannels,
 		onReport,
-		sendIceCandidate,
 	}: PartnerOptions<Channels>) {
 
 	let peerbox: Peerbox<Channels> | null = null
@@ -28,7 +28,11 @@ export function makePartnerApi<Channels>({
 	return {
 		async startPeerConnection() {
 			if (peerbox) peerbox.peer.close()
-			peerbox = new Peerbox(rtcConfig, sendIceCandidate, onReport)
+			peerbox = new Peerbox(
+				rtcConfig,
+				signalingApi.negotiation.sendIceCandidate,
+				onReport,
+			)
 		},
 
 		async produceOffer(): Promise<any> {

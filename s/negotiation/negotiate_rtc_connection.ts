@@ -1,5 +1,5 @@
 
-import {JoinResult, Partner} from "./types.js"
+import {Partner} from "./types.js"
 import {attempt_rtc_connection} from "./negutils/attempt-rtc-connection.js"
 import {start_exchanging_ice_candidates} from "./negutils/start-exchanging-ice-candidates.js"
 
@@ -9,7 +9,7 @@ import {start_exchanging_ice_candidates} from "./negutils/start-exchanging-ice-c
 export async function negotiate_rtc_connection(
 		host: Partner,
 		client: Partner,
-	): Promise<JoinResult> {
+	) {
 
 	const iceExchange = start_exchanging_ice_candidates(host, client)
 
@@ -21,8 +21,8 @@ export async function negotiate_rtc_connection(
 	)
 
 	return promise
-		.then((): JoinResult => "succeeded")
-		.catch((): JoinResult => "failed")
+		.then(() => true)
+		.catch(() => false)
 		.finally(() => iceExchange.stop())
 }
 

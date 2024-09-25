@@ -1,13 +1,13 @@
 
 export type AsyncListener<A extends any[]> = (...a: A) => Promise<void>
 
-export interface AsyncPub<A extends any[]> {
+export interface PubsubAsync<A extends any[]> {
 	(listener: AsyncListener<A>): () => void
 	publish(...a: A): Promise<void>
 	clear(): void
 }
 
-export function asyncPub<A extends any[]>(): AsyncPub<A> {
+export function pubsubAsync<A extends any[]>(): PubsubAsync<A> {
 	const listeners = new Set<AsyncListener<A>>()
 
 	function subscribe(fn: AsyncListener<A>) {

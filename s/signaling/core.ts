@@ -18,6 +18,14 @@ export class Core {
 
 	personDisconnected(person: Person) {
 		this.people.remove(person)
+
+		// remove any sessions which this person is hosting
+		for (const session of this.sessions.values()) {
+			if (session.host === person) {
+				this.sessions.delete(session.id)
+				break
+			}
+		}
 	}
 }
 
