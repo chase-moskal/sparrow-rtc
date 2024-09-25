@@ -52,7 +52,7 @@ export const makeSignalingApi = (core: Core, person: Person) => ({
 
 		async join(roomId: string) {
 			const room = core.rooms.require(roomId)
-			const allowed = await room.host.browserApi.knock(person.info())
+			const allowed = await room.host.browserApi.knock(roomId, person.info())
 
 			if (!allowed)
 				return undefined

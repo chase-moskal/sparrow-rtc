@@ -1,11 +1,12 @@
 
 import {ConnectionStatus} from "../types.js"
+import {PersonInfo} from "../../signaling/parts/people.js"
 
 export class ConnectionReport {
 	#iceCount = 0
 	#status: ConnectionStatus = "start"
 
-	constructor(public onChange: (report: ConnectionReport) => void) {}
+	constructor(public person: PersonInfo, public onChange: (report: ConnectionReport) => void) {}
 
 	get iceCount() { return this.#iceCount }
 	set iceCount(x: number) {

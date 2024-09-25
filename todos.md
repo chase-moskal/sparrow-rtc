@@ -1,5 +1,5 @@
 
-- [ ] sessionize rtc negotiation!
+- [x] operationalize rtc negotiation!
   - concurrent rtc negotiations will get scrambled until we split the process into sessions
 - [ ] origin isolation
   - by default browser clients can only interact with other browser clients who are on the same origin

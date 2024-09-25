@@ -1,7 +1,8 @@
 
 import {PartnerOptions} from "./types.js"
-import {Peerbox} from "./partnerutils/peerbox.js"
 import {concurrent} from "../tools/concurrent.js"
+import {Operations} from "./partnerutils/operations.js"
+import {PersonInfo} from "../signaling/parts/people.js"
 
 export type PartnerApi = ReturnType<typeof makePartnerApi>
 
@@ -14,60 +15,56 @@ export type PartnerApi = ReturnType<typeof makePartnerApi>
 export function makePartnerApi<Channels>({
 		signalingApi,
 		rtcConfig,
-		channelsConfig: establishChannels,
+		channelsConfig,
 		onCable,
 		onReport,
 	}: PartnerOptions<Channels>) {
 
-	let peerbox: Peerbox<Channels> | null = null
-
-	function require() {
-		if (peerbox) return peerbox
-		else throw new Error("no connection started")
-	}
+	const operations = new Operations<Channels>()
 
 	return {
-		async startPeerConnection() {
-			if (peerbox) peerbox.peer.close()
-			peerbox = new Peerbox(
+		async startPeerConnection(person: PersonInfo) {
+			const operation = operations.create({
+				person,
 				rtcConfig,
-				signalingApi.negotiation.sendIceCandidate,
 				onReport,
-			)
+				sendIceCandidate: signalingApi.negotiation.sendIceCandidate,
+			})
+			return operation.id
 		},
 
-		async produceOffer(): Promise<any> {
-			const {peer, channelsWaiting, report} = require()
+		async produceOffer(opId: number): Promise<any> {
+			const {peer, channelsWaiting, report} = operations.require(opId)
 			report.status = "offer"
-			channelsWaiting.entangle(establishChannels.offering(peer))
+			channelsWaiting.entangle(channelsConfig.offering(peer))
 			const offer = await peer.createOffer()
 			await peer.setLocalDescription(offer)
 			return offer
 		},
 
-		async produceAnswer(offer: RTCSessionDescription): Promise<any> {
-			const {peer, channelsWaiting, report} = require()
+		async produceAnswer(opId: number, offer: RTCSessionDescription): Promise<any> {
+			const {peer, channelsWaiting, report} = operations.require(opId)
 			report.status = "answer"
-			channelsWaiting.entangle(establishChannels.answering(peer))
+			channelsWaiting.entangle(channelsConfig.answering(peer))
 			await peer.setRemoteDescription(offer)
 			const answer = await peer.createAnswer()
 			await peer.setLocalDescription(answer)
 			return answer
 		},
 
-		async acceptAnswer(answer: RTCSessionDescription): Promise<void> {
-			const {peer, report} = require()
+		async acceptAnswer(opId: number, answer: RTCSessionDescription): Promise<void> {
+			const {peer, report} = operations.require(opId)
 			report.status = "accept"
 			await peer.setRemoteDescription(answer)
 		},
 
-		async acceptIceCandidate(ice: RTCIceCandidate): Promise<void> {
-			const {peer} = require()
+		async acceptIceCandidate(opId: number, ice: RTCIceCandidate): Promise<void> {
+			const {peer} = operations.require(opId)
 			await peer.addIceCandidate(ice)
 		},
 
-		async waitUntilReady(): Promise<void> {
-			const {report, channelsWaiting, connectedPromise, iceGatheredPromise} = require()
+		async waitUntilReady(opId: number): Promise<void> {
+			const {person, report, channelsWaiting, connectedPromise, iceGatheredPromise} = operations.require(opId)
 			report.status = "trickle"
 
 			const wait = concurrent({
@@ -78,7 +75,7 @@ export function makePartnerApi<Channels>({
 			const [{peer, channels}] = await Promise.all([wait, iceGatheredPromise])
 
 			report.status = "connected"
-			onCable({peer, channels, report})
+			onCable({person, peer, channels, report})
 		},
 	}
 }

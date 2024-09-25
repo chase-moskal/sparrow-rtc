@@ -1,7 +1,7 @@
 
 import {PartnerApi} from "./partner-api.js"
 import {SignalingApi} from "../signaling/api.js"
-import {Person} from "../signaling/parts/people.js"
+import {Person, PersonInfo} from "../signaling/parts/people.js"
 import {ConnectionReport} from "./partnerutils/connection-report.js"
 
 export type PartnerOptions<Channels> = {
@@ -15,6 +15,7 @@ export type PartnerOptions<Channels> = {
 export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle" | "connected"
 
 export type Cable<Channels> = {
+	person: PersonInfo
 	channels: Channels
 	peer: RTCPeerConnection
 	report: ConnectionReport
