@@ -1,14 +1,11 @@
 
 # 🐦 sparrow-rtc
 
-🪄 ***sparrow makes webrtc super easy.***  
+🌟 ***sparrow makes webrtc super easy.***  
 🫂 webrtc is peer-to-peer networking between browser tabs.  
 🎮 perfect for making player-hosted multiplayer web games.  
-📽️ ready for multimedia streaming.  
-🧠 simple concepts like `rooms` and `people`.  
-🤖 defaults to giving you dual data channels.  
-⛅ defaults to use google stun/turn servers.  
-📡 defaults to use sparrow's free signaling server.  
+📽️ capable of multimedia streaming.  
+🧠 simple concepts like `people` in `rooms`.  
 💖 free and open source.  
 
 <br/>
@@ -39,13 +36,8 @@
     ```
 1. communicate with the host
     ```ts
-    // tcp-like, high-integrity, slow delivery
     room.host.channels.reliable.send("hello")
-
-    // udp-like, low-integrity, fast delivery
     room.host.channels.unreliable.send("hello")
-
-    // listen for incoming messages
     room.host.channels.reliable.onmessage(message => console.log(message))
     ```
 1. leave the room
@@ -70,8 +62,6 @@
     ```ts
     room.onJoin(person => {
       console.log(`${person.name} joined the room`)
-
-      // communicate with the person
       person.channels.unreliable.send("hello")
       person.channels.reliable.send("world")
     })
@@ -80,12 +70,12 @@
       console.log(`${person.name} has left the room`)
     })
     ```
-1. see who's currently in the room
+1. send a message to each person in the room
     ```ts
     for (const person of room.people)
-      console.log(person.name)
+      person.channels.reliable.send("lol")
     ```
-1. kick somebody from the room
+1. kick somebody out of the room
     ```ts
     await room.kick(person)
     ```
@@ -98,7 +88,20 @@
 
 ## 🐦 learn more about sparrow
 
-*TODO*
+📡 defaults to use sparrow's free signaling server.  
+⛅ defaults to use google stun/turn servers.  
+🤖 defaults to giving you dual data channels.  
+
+### reconfigure the defaults
+  ```ts
+  import {Sparrow, stdRtcConfig, stdDataChannels} from "sparrow-rtc"
+
+  const sparrow = await Sparrow.connect({
+    url: "wss://sparrow.benev.gg/",
+    rtcConfig: stdRtcConfig(),
+    channelsConfig: stdDataChannels(),
+  })
+  ```
 
 <br/>
 
