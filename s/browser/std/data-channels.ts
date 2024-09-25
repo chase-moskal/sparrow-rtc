@@ -2,9 +2,9 @@
 import {concurrent} from "../../tools/concurrent.js"
 import {openPromise} from "../../tools/open-promise.js"
 import {attachEvents} from "../../tools/attach-events.js"
-import {ChannelsConfig, StandardDataChannels} from "../../negotiation/types.js"
+import {ChannelsConfig, StdDataChannels} from "../../negotiation/types.js"
 
-export const stdDataChannels = (): ChannelsConfig<StandardDataChannels> => ({
+export const stdDataChannels = (): ChannelsConfig<StdDataChannels> => ({
 
 	offering: async peer => {
 		function prepareChannel(channel: RTCDataChannel) {

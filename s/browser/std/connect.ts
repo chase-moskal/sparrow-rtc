@@ -6,22 +6,27 @@ import {version} from "../../version.js"
 import {makeBrowserApi} from "../api.js"
 import {ConnectOptions} from "../types.js"
 import {pubsub} from "../../tools/pubsub.js"
-import {Cable} from "../../negotiation/types.js"
+import {stdOptions} from "./connect-options.js"
 import {SignalingApi} from "../../signaling/api.js"
+import {Cable, ChannelsConfig, StdDataChannels} from "../../negotiation/types.js"
 import {ConnectionReport} from "../../negotiation/partnerutils/connection-report.js"
 
-export async function connect<Channels>(options: ConnectOptions<Channels>) {
+export async function connect<Channels = StdDataChannels>(
+		options: Partial<ConnectOptions<Channels>> = stdOptions() as ConnectOptions<any>
+	) {
+
+	const o = {...stdOptions(), ...options}
 	const onCable = pubsub<[Cable<Channels>]>()
 	const onReport = pubsub<[ConnectionReport]>()
 
 	const {socket, fns: signalingApi} = await webSocketRemote<SignalingApi>({
-		url: options.url,
+		url: o.url,
 		getLocalEndpoint: signalingApi => expose(() => makeBrowserApi({
-			allowJoin: options.allowJoin,
+			allowJoin: o.allowJoin,
 			partner: {
 				signalingApi,
-				rtcConfig: options.rtcConfig,
-				channelsConfig: options.channelsConfig,
+				rtcConfig: o.rtcConfig,
+				channelsConfig: o.channelsConfig as ChannelsConfig<Channels>,
 				onCable: onCable.publish,
 				onReport: onReport.publish,
 			},

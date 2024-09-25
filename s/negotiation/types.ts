@@ -32,7 +32,7 @@ export type ChannelsConfig<Channels> = {
 	answering: (peer: RTCPeerConnection) => Promise<Channels>
 }
 
-export type StandardDataChannels = {
+export type StdDataChannels = {
 	reliable: RTCDataChannel
 	unreliable: RTCDataChannel
 }

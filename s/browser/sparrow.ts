@@ -10,7 +10,7 @@ import {attachEvents} from "../tools/attach-events.js"
 import {stdDataChannels} from "./std/data-channels.js"
 import {SignalingApi, Stats} from "../signaling/api.js"
 import {RoomSettings} from "../signaling/parts/rooms.js"
-import {Cable, StandardDataChannels} from "../negotiation/types.js"
+import {Cable, StdDataChannels} from "../negotiation/types.js"
 import {ConnectionReport} from "../negotiation/partnerutils/connection-report.js"
 
 export class Sparrow<Channels> {
