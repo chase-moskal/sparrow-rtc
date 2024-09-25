@@ -1,57 +1,46 @@
 
-import {expose, webSocketRemote} from "renraku"
-
-import {version} from "../version.js"
-import {makeBrowserApi} from "./api.js"
-import {ConnectOptions} from "./types.js"
+import {Seat} from "./parts/seat.js"
+import {Throne} from "./parts/throne.js"
+import {connect} from "./std/connect.js"
+import {Pubsub} from "../tools/pubsub.js"
+import {stdRtcConfig} from "./std/rtc-config.js"
 import {SignalingApi} from "../signaling/api.js"
-import {Pubsub, pubsub} from "../tools/pubsub.js"
-import {openPromise} from "../tools/open-promise.js"
-import {HappyConnection} from "../negotiation/types.js"
+import {stdOptions} from "./std/connect-options.js"
+import {allowEveryone} from "./std/allow-everyone.js"
+import {stdDataChannels} from "./std/data-channels.js"
 import {RoomSettings} from "../signaling/parts/rooms.js"
-import {standardRtcConfig} from "../negotiation/partnerutils/rtc-config.js"
+import {Cable, StandardDataChannels} from "../negotiation/types.js"
 import {ConnectionReport} from "../negotiation/partnerutils/connection-report.js"
-import {StandardDataChannels, standardDataChannels} from "../negotiation/partnerutils/establish-channels.js"
 
 export class Sparrow<Channels> {
-	static options(): ConnectOptions<StandardDataChannels> {
-		return {
-			url: "wss://sparrow.benev.gg/",
-			rtcConfig: standardRtcConfig,
-			establishChannels: standardDataChannels,
-			allowJoin: async() => true,
-		}
-	}
+	static stdOptions = stdOptions
+	static stdRtcConfig = stdRtcConfig
+	static stdDataChannels = stdDataChannels
 
-	static async connect<Channels>(options: ConnectOptions<Channels>) {
-		const onReady = pubsub<[HappyConnection<Channels>]>()
-		const onReport = pubsub<[ConnectionReport]>()
-
-		const {socket, fns: signalingApi} = await webSocketRemote<SignalingApi>({
-			url: options.url,
-			getLocalEndpoint: signalingApi => expose(() => makeBrowserApi({
-				allowJoin: options.allowJoin,
-				partner: {
-					signalingApi,
-					rtcConfig: options.rtcConfig,
-					establishChannels: options.establishChannels,
-					onReady: onReady.publish,
-					onReport: onReport.publish,
-				},
-			})),
-		})
-
-		await signalingApi.hello(version)
-
-		return new this<Channels>(socket, signalingApi, onReady, onReport)
-	}
+	static connect = connect
+	static allowEveryone = allowEveryone
 
 	constructor(
 		public socket: WebSocket,
 		public signalingApi: SignalingApi,
-		public onReady: Pubsub<[HappyConnection<Channels>]>,
+		public onCable: Pubsub<[Cable<Channels>]>,
 		public onReport: Pubsub<[ConnectionReport]>,
 	) {}
+
+	async host(settings: RoomSettings) {
+		this.#requireConnectionToSignalingServer()
+		const room = await this.signalingApi.rooms.host(settings)
+		return new Throne(room)
+	}
+
+	async join(roomId: string) {
+		this.#requireConnectionToSignalingServer()
+		const cablePromise = this.onCable.once(x => x)
+		const result = await this.signalingApi.rooms.join(roomId)
+		return "room" in result
+			? new Seat(result.room, await cablePromise)
+			: result
+	}
 
 	disconnect() {
 		this.socket.close()
@@ -60,34 +49,6 @@ export class Sparrow<Channels> {
 	#requireConnectionToSignalingServer() {
 		if (this.socket.readyState !== this.socket.OPEN)
 			throw new Error("socket is disconnected, cannot continue")
-	}
-
-	async host(settings: RoomSettings) {
-		this.#requireConnectionToSignalingServer()
-		return await this.signalingApi.rooms.host(settings)
-	}
-
-	async join(options: {
-			roomId: string
-			onReport?: (report: ConnectionReport) => void
-		}) {
-
-		this.#requireConnectionToSignalingServer()
-
-		const connection = openPromise<HappyConnection<Channels>>()
-		const unlisten1 = this.onReport(options.onReport ?? (() => {}))
-		const unlisten2 = this.onReady(connection.resolve)
-
-		try {
-			const room = await this.signalingApi.rooms.join(options.roomId)
-			return room
-				? {room, connection: await connection.promise}
-				: false
-		}
-		finally {
-			unlisten1()
-			unlisten2()
-		}
 	}
 }
 

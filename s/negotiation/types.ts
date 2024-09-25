@@ -7,14 +7,14 @@ import {ConnectionReport} from "./partnerutils/connection-report.js"
 export type PartnerOptions<Channels> = {
 	signalingApi: SignalingApi
 	rtcConfig: RTCConfiguration
-	establishChannels: EstablishChannels<Channels>
+	channelsConfig: ChannelsConfig<Channels>
+	onCable: (cable: Cable<Channels>) => void
 	onReport: (report: ConnectionReport) => void
-	onReady: (connection: HappyConnection<Channels>) => void
 }
 
 export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle" | "connected"
 
-export type HappyConnection<Channels> = {
+export type Cable<Channels> = {
 	channels: Channels
 	peer: RTCPeerConnection
 	report: ConnectionReport
@@ -25,10 +25,19 @@ export type Partner = {
 	person: Person
 }
 
-export type EstablishChannels<Channels> = {
+export type SendIceCandidateFn = (candidate: RTCIceCandidate) => Promise<void>
+
+export type ChannelsConfig<Channels> = {
 	offering: (peer: RTCPeerConnection) => Promise<Channels>
 	answering: (peer: RTCPeerConnection) => Promise<Channels>
 }
 
-export type SendIceCandidateFn = (candidate: RTCIceCandidate) => Promise<void>
+export type StandardDataChannels = {
+	reliable: RTCDataChannel
+	unreliable: RTCDataChannel
+}
+
+export function asChannelsConfig<E extends ChannelsConfig<unknown>>(e: E) {
+	return e
+}
 

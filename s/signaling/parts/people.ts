@@ -15,5 +15,17 @@ export class Person {
 		public browserApi: BrowserApi,
 		public disconnect: () => void,
 	) {}
+
+	info(): PersonInfo {
+		return {
+			id: this.id,
+			name: this.name,
+		}
+	}
+}
+
+export type PersonInfo = {
+	id: string
+	name: string
 }
 

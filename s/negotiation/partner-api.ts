@@ -14,7 +14,8 @@ export type PartnerApi = ReturnType<typeof makePartnerApi>
 export function makePartnerApi<Channels>({
 		signalingApi,
 		rtcConfig,
-		establishChannels,
+		channelsConfig: establishChannels,
+		onCable,
 		onReport,
 	}: PartnerOptions<Channels>) {
 
@@ -65,20 +66,19 @@ export function makePartnerApi<Channels>({
 			await peer.addIceCandidate(ice)
 		},
 
-		async waitUntilReady() {
+		async waitUntilReady(): Promise<void> {
 			const {report, channelsWaiting, connectedPromise, iceGatheredPromise} = require()
 			report.status = "trickle"
-			const stuffPromise = concurrent({
+
+			const wait = concurrent({
 				peer: connectedPromise,
 				channels: channelsWaiting.promise,
 			})
-			const [stuff] = await Promise.all([stuffPromise, iceGatheredPromise])
+
+			const [{peer, channels}] = await Promise.all([wait, iceGatheredPromise])
+
 			report.status = "connected"
-			return {
-				report,
-				peer: stuff.peer,
-				channels: stuff.channels,
-			}
+			onCable({peer, channels, report})
 		},
 	}
 }

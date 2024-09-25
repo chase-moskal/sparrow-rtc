@@ -25,7 +25,6 @@ export class Rooms extends Pool<Room> {
 
 export class Room {
 	id = hexId()
-	secret = hexId()
 	participants = new Set<Person>()
 
 	constructor(
@@ -47,13 +46,6 @@ export class Room {
 			discoverable: settings.discoverable,
 		}
 	}
-
-	secretInfo(): RoomSecretInfo {
-		return {
-			...this.info(),
-			secret: this.secret,
-		}
-	}
 }
 
 export type RoomListOptions = {
@@ -68,12 +60,8 @@ export type RoomSettings = {
 export type RoomInfo = {
 	id: string
 	label: string
-	discoverable: boolean
 	hostId: string
 	peopleCount: number
-}
-
-export type RoomSecretInfo = RoomInfo & {
-	secret: string
+	discoverable: boolean
 }
 

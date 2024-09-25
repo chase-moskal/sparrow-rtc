@@ -1,19 +1,10 @@
 
-import {EstablishChannels} from "../types.js"
 import {concurrent} from "../../tools/concurrent.js"
 import {openPromise} from "../../tools/open-promise.js"
 import {attachEvents} from "../../tools/attach-events.js"
+import {ChannelsConfig, StandardDataChannels} from "../../negotiation/types.js"
 
-export function asChannelEstablisher<E extends EstablishChannels<unknown>>(e: E) {
-	return e
-}
-
-export type StandardDataChannels = {
-	reliable: RTCDataChannel
-	unreliable: RTCDataChannel
-}
-
-export const standardDataChannels: EstablishChannels<StandardDataChannels> = ({
+export const stdDataChannels = (): ChannelsConfig<StandardDataChannels> => ({
 
 	offering: async peer => {
 		function prepareChannel(channel: RTCDataChannel) {
@@ -25,6 +16,7 @@ export const standardDataChannels: EstablishChannels<StandardDataChannels> = ({
 			})
 			return waiting.promise.finally(unattach)
 		}
+
 		return concurrent({
 			reliable: prepareChannel(peer.createDataChannel("reliable", {
 				ordered: true,
@@ -41,6 +33,7 @@ export const standardDataChannels: EstablishChannels<StandardDataChannels> = ({
 			reliable: openPromise<RTCDataChannel>(),
 			unreliable: openPromise<RTCDataChannel>(),
 		}
+
 		const unattach = attachEvents(peer, {
 			datachannel: ({channel}: RTCDataChannelEvent) => {
 				if (channel.label in waiting) {
@@ -50,6 +43,7 @@ export const standardDataChannels: EstablishChannels<StandardDataChannels> = ({
 				else throw new Error(`unknown data channel "${channel.label}"`)
 			},
 		})
+
 		return concurrent({
 			reliable: waiting.reliable.promise,
 			unreliable: waiting.unreliable.promise,

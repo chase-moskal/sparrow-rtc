@@ -1,5 +1,5 @@
 
-export const standardRtcConfig: RTCConfiguration = {
+export const stdRtcConfig = (): RTCConfiguration => ({
 	iceServers: [
 		{
 			urls: [
@@ -11,5 +11,5 @@ export const standardRtcConfig: RTCConfiguration = {
 			]
 		},
 	]
-}
+})
 

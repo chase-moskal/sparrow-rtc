@@ -1,10 +1,13 @@
 
-import {EstablishChannels} from "../negotiation/types.js"
+import {ChannelsConfig} from "../negotiation/types.js"
+import {PersonInfo} from "../signaling/parts/people.js"
 
 export type ConnectOptions<Channels> = {
 	url: string
 	rtcConfig: RTCConfiguration
-	establishChannels: EstablishChannels<Channels>
-	allowJoin: (personId: string) => Promise<boolean>
+	channelsConfig: ChannelsConfig<Channels>
+	allowJoin: AllowJoinFn
 }
+
+export type AllowJoinFn = (personInfo: PersonInfo) => Promise<boolean>
 

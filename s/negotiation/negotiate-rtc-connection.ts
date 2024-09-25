@@ -14,15 +14,14 @@ export async function negotiate_rtc_connection(
 	const iceExchange = start_exchanging_ice_candidates(host, client)
 
 	const promise = (
+
 		// try it this way: host as offerer
 		attempt_rtc_connection(host, client)
+
 			// try it that way: client as offerer
 			.catch(() => attempt_rtc_connection(client, host))
 	)
 
-	return promise
-		.then(() => true)
-		.catch(() => false)
-		.finally(() => iceExchange.stop())
+	return promise.finally(() => iceExchange.stop())
 }
 
