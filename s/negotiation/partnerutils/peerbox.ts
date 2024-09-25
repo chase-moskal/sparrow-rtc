@@ -2,8 +2,8 @@
 import {gather_ice} from "./gather-ice.js"
 import {SendIceCandidateFn} from "../types.js"
 import {ConnectionReport} from "./connection-report.js"
-import {openPromise} from "../../tools/open-promise.js"
 import {wait_for_connection} from "./wait-for-connection.js"
+import {deferredPromise} from "../../tools/deferred-promise.js"
 
 export class Peerbox<Channels> {
 	report: ConnectionReport
@@ -11,7 +11,7 @@ export class Peerbox<Channels> {
 	iceGatheredPromise: Promise<void>
 	connectedPromise: Promise<RTCPeerConnection>
 
-	channelsWaiting = openPromise<Channels>()
+	channelsWaiting = deferredPromise<Channels>()
 
 	constructor(
 			public rtcConfig: RTCConfiguration,

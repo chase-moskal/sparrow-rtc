@@ -52,9 +52,9 @@ export class Sparrow<Channels> {
 
 	async join(roomId: string) {
 		this.#requireConnectionToSignalingServer()
-		const cablePromise = this.onCable.once(x => x)
 		const room = await this.signalingApi.rooms.join(roomId)
-		return room && new Seat(this, room, await cablePromise)
+		const [cable] = await this.onCable.once()
+		return room && new Seat(this, room, cable)
 	}
 
 	#cleanup() {

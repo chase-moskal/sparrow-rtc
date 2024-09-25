@@ -1,7 +1,7 @@
 
 import {concurrent} from "../../tools/concurrent.js"
-import {openPromise} from "../../tools/open-promise.js"
 import {attachEvents} from "../../tools/attach-events.js"
+import {deferredPromise} from "../../tools/deferred-promise.js"
 import {ChannelsConfig, StdDataChannels} from "../../negotiation/types.js"
 
 export const stdDataChannels = (): ChannelsConfig<StdDataChannels> => ({
@@ -9,7 +9,7 @@ export const stdDataChannels = (): ChannelsConfig<StdDataChannels> => ({
 	offering: async peer => {
 		function prepareChannel(channel: RTCDataChannel) {
 			channel.binaryType = "arraybuffer"
-			const waiting = openPromise<RTCDataChannel>()
+			const waiting = deferredPromise<RTCDataChannel>()
 			const unattach = attachEvents(channel, {
 				open: () => waiting.resolve(channel),
 				error: (e: RTCErrorEvent) => waiting.reject(e.error),
@@ -30,8 +30,8 @@ export const stdDataChannels = (): ChannelsConfig<StdDataChannels> => ({
 
 	answering: async peer => {
 		const waiting = {
-			reliable: openPromise<RTCDataChannel>(),
-			unreliable: openPromise<RTCDataChannel>(),
+			reliable: deferredPromise<RTCDataChannel>(),
+			unreliable: deferredPromise<RTCDataChannel>(),
 		}
 
 		const unattach = attachEvents(peer, {
