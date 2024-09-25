@@ -2,6 +2,7 @@
 import {Person, PersonInfo} from "./people.js"
 import {Pool} from "../../tools/map2.js"
 import {hexId} from "../../tools/hex-id.js"
+import {DoorPolicyFn} from "../../browser/types.js"
 
 export class Rooms extends Pool<Room> {}
 
@@ -36,6 +37,10 @@ export type RoomListOptions = {
 export type RoomSettings = {
 	label: string
 	discoverable: boolean
+}
+
+export type HostingOptions = RoomSettings & {
+	doorPolicy: DoorPolicyFn
 }
 
 export type RoomInfo = {

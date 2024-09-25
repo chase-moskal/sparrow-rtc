@@ -1,7 +1,7 @@
 
-import {AllowJoinFn} from "../types.js"
+import {DoorPolicyFn} from "../types.js"
 
-export const allowEveryone = (): AllowJoinFn => {
+export const allowEveryone = (): DoorPolicyFn => {
 	return async() => true
 }
 

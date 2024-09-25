@@ -6,8 +6,7 @@ export type ConnectOptions<Channels> = {
 	url: string
 	rtcConfig: RTCConfiguration
 	channelsConfig: ChannelsConfig<Channels>
-	allowJoin: AllowJoinFn
 }
 
-export type AllowJoinFn = (personInfo: PersonInfo) => Promise<boolean>
+export type DoorPolicyFn = (personInfo: PersonInfo) => Promise<boolean>
 

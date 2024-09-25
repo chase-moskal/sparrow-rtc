@@ -8,6 +8,7 @@ import {ConnectOptions} from "../types.js"
 import {pubsub} from "../../tools/pubsub.js"
 import {stdOptions} from "./connect-options.js"
 import {SignalingApi} from "../../signaling/api.js"
+import {DoorPolicies} from "../parts/door-policies.js"
 import {Cable, ChannelsConfig, StdDataChannels} from "../../negotiation/types.js"
 import {ConnectionReport} from "../../negotiation/partnerutils/connection-report.js"
 
@@ -18,11 +19,12 @@ export async function connect<Channels = StdDataChannels>(
 	const o = {...stdOptions(), ...options}
 	const onCable = pubsub<[Cable<Channels>]>()
 	const onReport = pubsub<[ConnectionReport]>()
+	const doorPolicies = new DoorPolicies()
 
 	const {socket, fns: signalingApi} = await webSocketRemote<SignalingApi>({
 		url: o.url,
 		getLocalEndpoint: signalingApi => expose(() => makeBrowserApi({
-			allowJoin: o.allowJoin,
+			doorPolicies,
 			partner: {
 				signalingApi,
 				rtcConfig: o.rtcConfig,
@@ -35,6 +37,6 @@ export async function connect<Channels = StdDataChannels>(
 
 	await signalingApi.hello(version)
 
-	return new Sparrow<Channels>(socket, signalingApi, onCable, onReport)
+	return new Sparrow<Channels>(socket, signalingApi, doorPolicies, onCable, onReport)
 }
 

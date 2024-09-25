@@ -94,7 +94,7 @@
 
 ### reconfigure the defaults
   ```ts
-  import {Sparrow, stdRtcConfig, stdDataChannels} from "sparrow-rtc"
+  import {Sparrow} from "sparrow-rtc"
 
   const sparrow = await Sparrow.connect({
     url: "wss://sparrow.benev.gg/",
