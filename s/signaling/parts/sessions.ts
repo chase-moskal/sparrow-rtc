@@ -3,6 +3,8 @@ import {Person} from "./people.js"
 import {Pool} from "../../tools/map2.js"
 import {hexId} from "../../tools/hex-id.js"
 
+// TODO rename sessions to 'rooms'
+
 export class Sessions extends Pool<Session> {
 	getInfo(sessionId: string) {
 		const session = this.get(sessionId)
