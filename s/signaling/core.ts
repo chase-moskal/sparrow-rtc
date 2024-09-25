@@ -1,12 +1,12 @@
 
-import {Sessions} from "./parts/sessions.js"
+import {Rooms} from "./parts/rooms.js"
 import {BrowserApi} from "../browser/api.js"
 import {People, Person} from "./parts/people.js"
 import {FunnyNames} from "../tools/funny-names.js"
 
 export class Core {
 	people = new People()
-	sessions = new Sessions()
+	rooms = new Rooms()
 	#funnyNames = new FunnyNames()
 
 	acceptNewPerson(browserApi: BrowserApi, disconnect: () => void) {
@@ -19,10 +19,10 @@ export class Core {
 	personDisconnected(person: Person) {
 		this.people.remove(person)
 
-		// remove any sessions which this person is hosting
-		for (const session of this.sessions.values()) {
-			if (session.host === person) {
-				this.sessions.delete(session.id)
+		// remove any rooms which this person is hosting
+		for (const room of this.rooms.values()) {
+			if (room.host === person) {
+				this.rooms.delete(room.id)
 				break
 			}
 		}

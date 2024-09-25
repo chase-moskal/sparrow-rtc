@@ -1,6 +1,7 @@
 
-export function sessionLink(link: string, term: string, sessionId: string) {
+export function roomLink(link: string, term: string, roomId: string) {
 	const url = new URL(link)
-	url.hash = `#${term}=${sessionId}`
+	url.hash = `#${term}=${roomId}`
 	return url.toString()
 }
+

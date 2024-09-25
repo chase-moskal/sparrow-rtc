@@ -1,7 +1,7 @@
 
 import {escapeRegex} from "../escape-regex.js"
 
-export function parseHashForSessionId(hash: string, term: string) {
+export function parseHashForRoomId(hash: string, term: string) {
 	hash = (hash.length && hash[0] === "#")
 		? hash.slice(1)
 		: hash
