@@ -7,15 +7,15 @@ import {Partner} from "../types.js"
  */
 export async function attempt_rtc_connection(offerer: Partner, answerer: Partner) {
 	await Promise.all([
-		offerer.startPeerConnection(),
-		answerer.startPeerConnection(),
+		offerer.api.startPeerConnection(),
+		answerer.api.startPeerConnection(),
 	])
-	const offer = await offerer.produceOffer()
-	const answer = await answerer.produceAnswer(offer)
-	await offerer.acceptAnswer(answer)
+	const offer = await offerer.api.produceOffer()
+	const answer = await answerer.api.produceAnswer(offer)
+	await offerer.api.acceptAnswer(answer)
 	await Promise.all([
-		offerer.waitUntilReady(),
-		answerer.waitUntilReady(),
+		offerer.api.waitUntilReady(),
+		answerer.api.waitUntilReady(),
 	])
 }
 

@@ -1,5 +1,6 @@
 
 import {PartnerApi} from "./partner-api.js"
+import {Person} from "../signaling/parts/people.js"
 import {ConnectionReport} from "./partnerutils/connection-report.js"
 
 export type PartnerOptions<Channels> = {
@@ -10,6 +11,7 @@ export type PartnerOptions<Channels> = {
 	sendIceCandidate: (candidate: RTCIceCandidate) => Promise<void>
 }
 
+export type JoinResult = "rejected" | "failed" | "succeeded"
 export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickle" | "connected"
 
 export type HappyConnection<Channels> = {
@@ -19,9 +21,9 @@ export type HappyConnection<Channels> = {
 }
 
 export type Partner = {
-	personId: string
-	onIceCandidate(fn: (ice: RTCIceCandidate) => void): (() => void)
-} & PartnerApi
+	api: PartnerApi
+	person: Person
+}
 
 export type EstablishChannels<Channels> = {
 	offering: (peer: RTCPeerConnection) => Promise<Channels>

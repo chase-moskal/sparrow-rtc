@@ -8,8 +8,13 @@ export const makeBrowserApi = <Channels>(options: {
 		partner: PartnerOptions<Channels>
 	}) => ({
 
-	v0: {
-		partner: makePartnerApi(options.partner),
+	partner: makePartnerApi(options.partner),
+
+	/** somebody wants to join.. will we allow it? */
+	async knock(joinerId: string) {
+
+		// all are welcome 'round here
+		return true
 	},
 })
 
