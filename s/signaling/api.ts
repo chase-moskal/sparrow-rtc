@@ -3,10 +3,9 @@ import {ExposedError} from "renraku"
 
 import {Core} from "./core.js"
 import {version} from "../version.js"
-import {JoinResult} from "./types.js"
 import {Person} from "./parts/people.js"
 import {Partner} from "../negotiation/types.js"
-import {Room, RoomListOptions, RoomSettings} from "./parts/rooms.js"
+import {Room, RoomInfo, RoomListOptions, RoomSettings} from "./parts/rooms.js"
 import {negotiate_rtc_connection} from "../negotiation/negotiate-rtc-connection.js"
 
 export type SignalingApi = ReturnType<typeof makeSignalingApi>
@@ -33,20 +32,30 @@ export const makeSignalingApi = (core: Core, person: Person) => ({
 	},
 
 	rooms: {
-		async getInfo(roomId: string) {
-			return core.rooms.getInfo(roomId)
+		async info(roomId: string) {
+			const room = core.rooms.get(roomId)
+			return room
+				? room.info()
+				: undefined
 		},
 
-		async list(options: RoomListOptions) {
-			return core.rooms.list(options)
+		async list({limit}: RoomListOptions) {
+			let count = 0
+			const results: RoomInfo[] = []
+			for (const room of core.rooms.values()) {
+				results.push(room.info())
+				if (count++ >= Math.max(100, limit))
+					break
+			}
+			return results
 		},
 
-		async join(roomId: string): Promise<JoinResult> {
+		async join(roomId: string) {
 			const room = core.rooms.require(roomId)
 			const allowed = await room.host.browserApi.knock(person.info())
 
 			if (!allowed)
-				return {denied: true}
+				return undefined
 
 			const hostPartner: Partner = {
 				person: room.host,
@@ -59,7 +68,7 @@ export const makeSignalingApi = (core: Core, person: Person) => ({
 			}
 
 			await negotiate_rtc_connection(hostPartner, clientPartner)
-			return {room: room.info()}
+			return room.info()
 		},
 
 		async host(settings: RoomSettings) {
