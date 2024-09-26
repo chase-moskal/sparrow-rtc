@@ -9,7 +9,8 @@ import {pubsub} from "../../tools/pubsub.js"
 import {stdOptions} from "./connect-options.js"
 import {SignalingApi} from "../../signaling/api.js"
 import {DoorPolicies} from "../parts/door-policies.js"
-import {Cable, ChannelsConfig, StdDataChannels} from "../../negotiation/types.js"
+import {Cable} from "../../negotiation/partnerutils/cable.js"
+import {ChannelsConfig, StdDataChannels} from "../../negotiation/types.js"
 import {ConnectionReport} from "../../negotiation/partnerutils/connection-report.js"
 
 export async function connect<Channels = StdDataChannels>(
@@ -35,8 +36,8 @@ export async function connect<Channels = StdDataChannels>(
 		})),
 	})
 
-	await signalingApi.hello(version)
+	const self = await signalingApi.hello(version)
 
-	return new Sparrow<Channels>(socket, signalingApi, doorPolicies, onCable, onReport)
+	return new Sparrow<Channels>(socket, signalingApi, self, doorPolicies, onCable, onReport)
 }
 

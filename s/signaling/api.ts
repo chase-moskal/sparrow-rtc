@@ -20,6 +20,7 @@ export const makeSignalingApi = (core: Core, person: Person) => ({
 	async hello(wantedVersion: number) {
 		if (wantedVersion !== version)
 			throw new ExposedError(`version error: signaling server is at v${version}, but the client wanted v${wantedVersion}`)
+		return person.info()
 	},
 
 	basic: {

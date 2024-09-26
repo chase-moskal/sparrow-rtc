@@ -4,7 +4,6 @@ import {Contact} from "./contact.js"
 import {Sparrow} from "../sparrow.js"
 import {RoomInfo} from "../../signaling/parts/rooms.js"
 import {PersonInfo} from "../../signaling/parts/people.js"
-import {Cable} from "../../negotiation/types.js"
 
 /** room from the client's perspective */
 export class ClientRoom<Channels> {
@@ -14,11 +13,11 @@ export class ClientRoom<Channels> {
 	constructor(
 			public sparrow: Sparrow<Channels>,
 			public room: RoomInfo,
-			public hostPersonInfo: PersonInfo,
-			public hostCable: Cable<Channels>,
+			public hostInfo: PersonInfo,
 		) {
 
-		this.host = new Contact(hostPersonInfo, hostCable)
+		const cable = sparrow.cables.require(hostInfo.id)
+		this.host = new Contact(hostInfo, cable)
 
 		for (const person of room.participants) {
 			this.members.add(
