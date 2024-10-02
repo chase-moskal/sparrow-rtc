@@ -4,101 +4,63 @@
 🌟 ***sparrow makes webrtc super easy.***  
 🫂 webrtc is peer-to-peer networking between browser tabs.  
 🎮 perfect for making player-hosted multiplayer web games.  
-📽️ capable of multimedia streaming.  
-🧠 simple concepts like `people` in `rooms`.  
+📽️ also capable of multimedia streaming.  
 💖 free and open source.  
 
 <br/>
 
-## 🐦 learn by example
+## 🐦 hosting and joining
 
-1. install sparrow-rtc
+1. **install sparrow-rtc**
     ```sh
     npm i sparrow-rtc
     ```
-1. connect to the sparrow server
+1. **host a session**
     ```ts
     import {Sparrow} from "sparrow-rtc"
 
-    const sparrow = await Sparrow.connect()
-    ```
-
-### join a room
-
-1. you just need the `roomId`
-    ```ts
-    const room = await sparrow.join(roomId)
-    ```
-1. see who else is in the room
-    ```ts
-    for (const person of room.people)
-      console.log(person.name)
-    ```
-1. communicate with the host
-    ```ts
-    room.host.channels.reliable.send("hello")
-    room.host.channels.unreliable.send("hello")
-    room.host.channels.reliable.onmessage(message => console.log(message))
-    ```
-1. leave the room
-    ```ts
-    await room.leave()
-    ```
-
-### host a room
-
-1. provide some room settings
-    ```ts
-    const room = await sparrow.host({
-      label: "my cool club",
-      discoverable: true,
-      allowJoin: person => true,
-    })
-
-    // send this to your friends so they can join
-    const roomId = room.id
-    ```
-1. react to people joining or leaving
-    ```ts
-    room.onJoin(person => {
-      console.log(`${person.name} joined the room`)
-      person.channels.unreliable.send("hello")
-      person.channels.reliable.send("world")
-    })
-
-    room.onLeave(person => {
-      console.log(`${person.name} has left the room`)
+    const session = await Sparrow.host({
+      onJoin: peer => {
+        console.log("somebody joined the game")
+        peer.channels.unreliable.send("world")
+        peer.channels.unreliable.onmessage = m => console.log(m.data)
+        return () => console.log("somebody left the game")
+      },
     })
     ```
-1. send a message to each person in the room
+    - this creates a websocket connection to the sparrow signaling server
+    - people can join using the invite string
+      ```ts
+      session.invite
+        // "8ab469956da27aff3825a3681b4f6452"
+      ```
+1. **join a session**
     ```ts
-    for (const person of room.people)
-      person.channels.reliable.send("lol")
-    ```
-1. kick somebody out of the room
-    ```ts
-    await room.kick(person)
-    ```
-1. terminate the room
-    ```ts
-    await room.terminate()
+    import {Sparrow} from "sparrow-rtc"
+
+    const session = await Sparrow.join({
+      invite: "8ab469956da27aff3825a3681b4f6452",
+      onDisconnected: () => console.log("you've been disconnected"),
+    })
     ```
 
 <br/>
 
 ## 🐦 learn more about sparrow
 
-📡 defaults to use sparrow's free signaling server.  
-⛅ defaults to use google stun/turn servers.  
-🤖 defaults to giving you dual data channels.  
-
-### reconfigure the defaults
+- `Sparrow.host` and `Sparrow.join` both accept these common options
   ```ts
-  import {Sparrow} from "sparrow-rtc"
+  import {CommonOptions} from "sparrow-rtc"
 
-  const sparrow = await Sparrow.connect({
+  const options: CommonOptions = {
+
+    // defaults to use sparrow's free signaling server
     url: "wss://sparrow.benev.gg/",
+
+    // defaults to using google's free stun/turn servers
     rtcConfig: stdRtcConfig(),
+
+    // defaults to dual data channels, one reliable, one unreliable
     channelsConfig: stdDataChannels(),
   })
   ```
