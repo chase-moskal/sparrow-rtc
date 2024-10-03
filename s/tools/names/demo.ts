@@ -1,5 +1,5 @@
 
-import {FunnyNames} from "./funny.js"
+import {MemeNames} from "./memes.js"
 import {syllabicName} from "./syllabic.js"
 
 console.log("====== syllabic names ======")
@@ -7,10 +7,10 @@ console.log("====== syllabic names ======")
 for (let i = 0; i < 20; i++)
 	console.log(" - ", syllabicName())
 
-const funny = new FunnyNames()
+const memes = new MemeNames()
 
-console.log("====== funny names ======")
+console.log("====== meme names ======")
 
 for (let i = 0; i < 20; i++)
-	console.log(" - ", funny.generate())
+	console.log(" - ", memes.generate())
 
