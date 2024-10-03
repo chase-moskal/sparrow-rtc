@@ -3,15 +3,19 @@ import {Hat} from "./utils/hat.js"
 
 export class MemeNames {
 	adjectives = new Hat([
-		"Bingus",
+		"Bingus", "Incredible",
 		"Angry", "Shiny", "Lazy", "Drunk", "Psychedelic", "Sassy", "Fluffy", "Bored",
 		"Spicy", "Awkward", "Deadpan", "Gigantic", "Tiny", "Moist", "Deranged",
 		"Neon", "Hyperactive", "Sleepy", "Salty", "Radioactive", "Suspicious",
 		"Hypnotized", "Unstable", "Ferocious", "Flammable", "Goth", "Zombie",
 		"Rainbow", "Quantum", "Schizoid", "Sweaty", "Explosive", "Mysterious",
-		"Nefarious", "Snarky", "Loud", "Muted", "Invisible", "Eldritch", "Cranky",
+		"Nefarious", "Snarky", "Loud", "Muted", "Visible", "Invisible", "Eldritch", "Cranky",
 		"Outrageous", "Oblivious", "Chaotic", "Unhinged", "Caffeinated", "Paranoid",
-		"Woke", "Edgy", "Crunchy", "Jaded", "Cheesy",
+		"Fast", "Slow", "Concerned", "Concerning", "Dangerous", "Obsolete",
+		"Degraded", "Decadent", "Deprecated", "Uncool", "Ridiculous",
+		"Ancient", "Old", "Soggy", "Deaf", "Worried", "Oaty", "Stinky",
+		"Buff", "Ripped", "Powerful", "Weak", "Pinner",
+		"Woke", "Edgy", "Crunchy", "Jaded", "Cheesy", "Wrinkly", "Smooth",
 		"Arctic", "Antarctic", "Oceanic", "Maritime", "Outdoorsy", "Indoorsy",
 		"Frightened", "Adventurous", "Terrified", "Pathetic", "Beastly",
 		"Terrorized", "Magnificient", "Ungrateful", "Spineless", "Bony",
@@ -20,13 +24,14 @@ export class MemeNames {
 		"Mid", "Bussin'", "Rizzed", "Swole", "Flexin'", "Thicc", "Seething",
 		"American", "European", "Latinx", "African", "Asian", "Australian",
 		"Unknown", "Known", "Unwanted", "Tense", "Nervous",
-		"Unionized",
+		"Unionized", "Massive", "Bossly", "Noble", "Peasant",
+		"Smooth-brained", "Wrinkle-brained",
 	])
 
 	nouns = new Hat([
 		"Ninja", "Banana", "Platypus", "Vampire", "Toaster", "Spaceship", "Unicorn",
 		"Meme", "Goblin", "Squirrel", "Taco", "Cactus", "Octopus", "Dragon",
-		"Sock", "Donut", "Laser", "Duck", "Cyborg", "Squid", "Giraffe", "Skeleton",
+		"Sock", "Donut", "Duck", "Cyborg", "Squid", "Giraffe", "Skeleton",
 		"Ghost", "Robot", "Dumpster", "Kangaroo", "Sloth", "Cheeseburger", "Shark",
 		"Pineapple", "Broccoli", "Narwhal", "Alien", "Penguin", "Pizza", "Llama",
 		"Shovel", "Chainsaw", "Dumpsterfire", "UFO", "Hamster", "Waffle",
@@ -35,16 +40,19 @@ export class MemeNames {
 		"Boomer", "Zoomer", "Doomer", "Chad", "Stacey", "Karen", "Clown",
 		"Simp", "Degen", "Normie", "NPC", "Incel", "Lurker", "Wojack",
 		"Doctor", "Lawyer", "Coder", "Barista", "Marshall", "Laborer",
-		"Lumberjack", "Sheriff", "Deputy", "Judge", "Surgeon",
+		"Lumberjack", "Sheriff", "Deputy", "Judge", "Surgeon", "Wagie",
  		"Socialist", "Communist", "Capitalist", "Libertarian", "Anarchist",
- 		"Reactionary", "Ideologue", "Believer", "Economist", "Politician",
- 		"President", "Dictator", "Diplomat",
+ 		"Reactionary", "Ideologue", "Economist", "Politician",
+ 		"President", "Dictator", "Diplomat", "Elitist", "Commoner",
+ 		"Mommy", "Daddy", "Uncle", "Aunt",
 	])
 
 	suffixes = new Hat([
 		"Enjoyer", "Maxxer", "Poster", "Connoisseur", "King", "Queen",
 		"Collector", "Aficionado", "Hoarder", "Fanatic", "Noticer",
-		"Dweller",
+		"Dweller", "Believer", "Disbeliever", "Rejecter", "Accepter",
+		"Mother", "Father", "Obtainer", "Stealer", "Giver", "Taker",
+		"Memer",
 	])
 
 	generate() {
@@ -55,6 +63,8 @@ export class MemeNames {
 		const suffix = this.suffixes.pull()
 
 		const formats = [
+			`${noun1} ${noun2}`,
+			`${noun1} ${noun2} ${suffix}`,
 			`${adj1} ${noun1}`,
 			`${adj1} ${noun1} ${suffix}`,
 			`${adj1} ${noun1} ${noun2}`,
