@@ -1,32 +1,23 @@
 
-import {Sessions} from "./parts/sessions.js"
+import {Agent} from "./agent/agent.js"
+import {Agents} from "./agent/agents.js"
 import {BrowserApi} from "../browser/api.js"
-import {People, Person} from "./parts/people.js"
 
 export class Core {
-	people = new People()
-	sessions = new Sessions()
+	agents = new Agents()
 
-	async acceptNewPerson(
+	async acceptAgent(
 			ip: string,
 			browserApi: BrowserApi,
 			disconnect: () => void,
 		) {
-		const person = await Person.make(ip, browserApi, disconnect)
-		this.people.add(person)
-		return person
+		const agent = await Agent.make(ip, browserApi, disconnect)
+		this.agents.add(agent)
+		return agent
 	}
 
-	personDisconnected(person: Person) {
-		this.people.remove(person)
-
-		// remove any rooms which this person is hosting
-		for (const room of this.sessions.values()) {
-			if (room.host === person) {
-				this.sessions.delete(room.id)
-				break
-			}
-		}
+	agentDisconnected(agent: Agent) {
+		this.agents.remove(agent)
 	}
 }
 

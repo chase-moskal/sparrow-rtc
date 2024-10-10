@@ -3,56 +3,53 @@ import {ExposedError} from "renraku"
 
 import {Core} from "./core.js"
 import {version} from "../version.js"
-import {Person} from "./parts/people.js"
+import {Agent} from "./agent/agent.js"
+import {Partner} from "../negotiation/types.js"
+import {negotiate_rtc_connection} from "../negotiation/negotiate-rtc-connection.js"
 
 export type SignalingApi = ReturnType<typeof makeSignalingApi>
 
 export type Stats = {
-	sessions: number
+	agents: number
 }
 
-export const makeSignalingApi = (core: Core, person: Person) => ({
+export const makeSignalingApi = (core: Core, agent: Agent) => ({
 
 	async hello(wantedVersion: number) {
 		if (wantedVersion !== version)
 			throw new ExposedError(`version error: signaling server is at v${version}, but the client wanted v${wantedVersion}`)
-		return person.info()
+		return agent.confidential()
 	},
-
 
 	async stats(): Promise<Stats> {
 		return {
-			sessions: core.sessions.size,
+			agents: core.agents.size,
 		}
 	},
 
-	async info(sessionId: string) {
-		const session = core.sessions.get(sessionId)
-		return session
-			? session.info()
-			: undefined
-	},
+	async join(invite: string) {
+		const alice = core.agents.invites.require(invite)
+		const bob = agent
 
-
-	async join(sessionId: string) {
-		const session = core.session.require(sessionId)
-		const allowed = await session.host.browserApi.knock(sessionId, person.info())
-
+		const allowed = await alice.browserApi.knock(bob.info())
 		if (!allowed)
 			return undefined
 
-		const hostPartner: Partner = {
-			person: room.host,
-			api: room.host.browserApi.partner,
+		const partnerA: Partner = {
+			agent,
+			api: alice.browserApi.partner,
 		}
 
-		const clientPartner: Partner = {
-			person,
-			api: person.browserApi.partner,
+		const partnerB: Partner = {
+			agent,
+			api: bob.browserApi.partner,
 		}
 
-		await negotiate_rtc_connection(hostPartner, clientPartner)
-		return room.info()
+		await negotiate_rtc_connection(partnerA, partnerB)
+	},
+
+	async sendIceCandidate(ice: RTCIceCandidate) {
+		await agent.onIceCandidate.publish(ice)
 	},
 })
 

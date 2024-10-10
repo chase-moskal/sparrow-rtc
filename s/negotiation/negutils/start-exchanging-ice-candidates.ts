@@ -9,8 +9,8 @@ export function start_exchanging_ice_candidates(
 		[bobId, bob]: [number, Partner],
 	) {
 
-	const stopA = alice.person.onIceCandidate(ice => bob.api.acceptIceCandidate(bobId, ice))
-	const stopB = bob.person.onIceCandidate(ice => alice.api.acceptIceCandidate(aliceId, ice))
+	const stopA = alice.agent.onIceCandidate(ice => bob.api.acceptIceCandidate(bobId, ice))
+	const stopB = bob.agent.onIceCandidate(ice => alice.api.acceptIceCandidate(aliceId, ice))
 
 	return () => {
 		stopA()

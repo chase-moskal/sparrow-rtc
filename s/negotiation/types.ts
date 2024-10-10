@@ -2,8 +2,8 @@
 import {PartnerApi} from "./partner-api.js"
 import {Cable} from "./partnerutils/cable.js"
 import {SignalingApi} from "../signaling/api.js"
-import {Person} from "../signaling/parts/people.js"
 import {ConnectionReport} from "./partnerutils/connection-report.js"
+import {Agent} from "../signaling/agent/agent.js"
 
 export type PartnerOptions<Channels> = {
 	signalingApi: SignalingApi
@@ -17,7 +17,7 @@ export type ConnectionStatus = "start" | "offer" | "answer" | "accept" | "trickl
 
 export type Partner = {
 	api: PartnerApi
-	person: Person
+	agent: Agent
 }
 
 export type SendIceCandidateFn = (candidate: RTCIceCandidate) => Promise<void>

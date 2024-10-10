@@ -8,8 +8,8 @@ import {start_exchanging_ice_candidates} from "./start-exchanging-ice-candidates
  */
 export async function attempt_rtc_connection(offerer: Partner, answerer: Partner) {
 	const [offerId, answerId] = await Promise.all([
-		offerer.api.startPeerConnection(answerer.person.info()),
-		answerer.api.startPeerConnection(offerer.person.info()),
+		offerer.api.startPeerConnection(answerer.agent.info()),
+		answerer.api.startPeerConnection(offerer.agent.info()),
 	])
 
 	const stopExchanging = start_exchanging_ice_candidates(

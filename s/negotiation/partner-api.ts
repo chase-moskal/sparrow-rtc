@@ -1,8 +1,9 @@
 
 import {PartnerOptions} from "./types.js"
 import {concurrent} from "../tools/concurrent.js"
+import {AgentInfo} from "../signaling/agent/types.js"
 import {Operations} from "./partnerutils/operations.js"
-import {PersonInfo} from "../signaling/parts/people.js"
+import {Cable} from "./partnerutils/cable.js"
 
 export type PartnerApi = ReturnType<typeof makePartnerApi>
 
@@ -23,12 +24,12 @@ export function makePartnerApi<Channels>({
 	const operations = new Operations<Channels>()
 
 	return {
-		async startPeerConnection(person: PersonInfo) {
+		async startPeerConnection(agent: AgentInfo) {
 			const operation = operations.create({
-				person,
+				agent,
 				rtcConfig,
 				onReport,
-				sendIceCandidate: signalingApi.negotiation.sendIceCandidate,
+				sendIceCandidate: signalingApi.sendIceCandidate,
 			})
 			return operation.id
 		},
@@ -64,7 +65,7 @@ export function makePartnerApi<Channels>({
 		},
 
 		async waitUntilReady(opId: number): Promise<void> {
-			const {person, report, channelsWaiting, connectedPromise, iceGatheredPromise} = operations.require(opId)
+			const {agent, report, channelsWaiting, connectedPromise, iceGatheredPromise} = operations.require(opId)
 			report.status = "trickle"
 
 			const wait = concurrent({
@@ -75,7 +76,8 @@ export function makePartnerApi<Channels>({
 			const [{peer, channels}] = await Promise.all([wait, iceGatheredPromise])
 
 			report.status = "connected"
-			onCable({person, peer, channels, report})
+			const cable = new Cable(agent, channels, peer, report)
+			onCable(cable)
 		},
 	}
 }

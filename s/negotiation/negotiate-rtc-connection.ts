@@ -6,17 +6,17 @@ import {attempt_rtc_connection} from "./negutils/attempt-rtc-connection.js"
  * the signaling server uses this algorithm to connect two webrtc browser peers.
  */
 export async function negotiate_rtc_connection(
-		host: Partner,
-		client: Partner,
+		partnerA: Partner,
+		partnerB: Partner,
 	) {
 
 	return await (
 
-		// try it this way: host as offerer
-		attempt_rtc_connection(host, client)
+		// try it this way
+		attempt_rtc_connection(partnerA, partnerB)
 
-			// try it that way: client as offerer
-			.catch(() => attempt_rtc_connection(client, host))
+			// try it that way
+			.catch(() => attempt_rtc_connection(partnerB, partnerA))
 	)
 }
 

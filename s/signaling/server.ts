@@ -16,10 +16,10 @@ const core = new Core()
 const server = new WebSocketServer({
 	acceptConnection: async({ip, remoteEndpoint, close}) => {
 		const browserApi = remote<BrowserApi>(remoteEndpoint)
-		const person = await core.acceptNewPerson(ip, browserApi, close)
+		const agent = await core.acceptAgent(ip, browserApi, close)
 		return {
-			closed: () => core.personDisconnected(person),
-			localEndpoint: endpoint(makeSignalingApi(core, person)),
+			closed: () => core.agentDisconnected(agent),
+			localEndpoint: endpoint(makeSignalingApi(core, agent)),
 		}
 	},
 })

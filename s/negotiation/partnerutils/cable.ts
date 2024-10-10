@@ -1,19 +1,19 @@
 
 import {ConnectionReport} from "./connection-report.js"
-import {PersonInfo} from "../../signaling/parts/people.js"
+import {AgentInfo} from "../../signaling/agent/types.js"
 
 export class Cable<Channels> {
 
-	/** this is the id of the person this cable is connected to */
+	/** this is the id of the agent this cable is connected to */
 	readonly id: string
 
 	constructor(
-			public person: PersonInfo,
+			public agent: AgentInfo,
 			public channels: Channels,
 			public peer: RTCPeerConnection,
 			public report: ConnectionReport,
 		) {
-		this.id = person.id
+		this.id = agent.id
 	}
 }
 
