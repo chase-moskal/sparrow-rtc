@@ -15,32 +15,37 @@
     ```sh
     npm i sparrow-rtc
     ```
-1. **host a session**
+1. **be a host: allow peers to join you**
     ```ts
     import {Sparrow} from "sparrow-rtc"
 
-    const session = await Sparrow.host({
-      onJoin: peer => {
-        console.log("somebody joined the game")
+    const sparrow = await Sparrow.connect({
+      joined: peer => {
+        console.log("peer connected")
         peer.channels.unreliable.send("world")
         peer.channels.unreliable.onmessage = m => console.log(m.data)
-        return () => console.log("somebody left the game")
+        return () => console.log("peer disconnected")
       },
+      closed: () => console.log("disconnected from sparrow"),
     })
     ```
     - this creates a websocket connection to the sparrow signaling server
     - people can join using the invite string
       ```ts
-      session.invite
+      sparrow.invite
         // "8ab469956da27aff3825a3681b4f6452"
       ```
-1. **join a session**
+1. **be a client: connect to the host via the invite**
     ```ts
     import {Sparrow} from "sparrow-rtc"
 
-    const session = await Sparrow.join({
+    const sparrow = await Sparrow.connect({
+      closed: () => console.log("disconnected from sparrow"),
+    })
+
+    const peer = await sparrow.join({
       invite: "8ab469956da27aff3825a3681b4f6452",
-      onDisconnected: () => console.log("you've been disconnected"),
+      closed: () => console.log("disconnected from peer"),
     })
     ```
 
